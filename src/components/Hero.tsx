@@ -20,7 +20,10 @@ export default function Hero() {
             <div className="eyebrow"><span className="eyebrow-star">✳</span> A DIFFERENT KIND OF CELEBRATION <span className="eyebrow-star">✳</span></div>
             <h1 id="hero-title" ref={titleRef} aria-label="Holywin"><span className="hero-word">{'HOLY'.split('').map((letter, i) => <span className="hero-letter" key={i}>{letter}</span>)}</span><span className="hero-word hero-word-outline">{'WIN!'.split('').map((letter, i) => <span className="hero-letter" key={i}>{letter}</span>)}</span></h1>
             <div className="hero-rule" />
-            <p className="hero-lede">Good things grow when we plant <strong>hope</strong> in young hearts.</p>
+            <blockquote className="max-w-[530px]">
+              <p className="hero-lede">“Yet to all who did receive him, to those who believed in his name, he gave the right to become children of God.”</p>
+              <cite className="mb-5 block text-xs font-extrabold not-italic uppercase tracking-[.14em]">John 1:12</cite>
+            </blockquote>
             <p className="hero-sub">A joy-filled, faith-first celebration where the next generation can belong, have fun, and discover the light of Jesus.</p>
             <div className="hero-actions"><a className="button button-dark" href="#register">Count me in <ArrowRight size={20} /></a><a className="text-link" href="#about">What is Holywin? <ArrowDownRight size={20} /></a></div>
             <div className="hero-side-note"><span className="tiny-cross">✦</span> FAITH · FUN · FRIENDSHIP</div>
@@ -35,7 +38,9 @@ export default function Hero() {
             <div className="doodle-arrow" aria-hidden="true">↗</div>
           </div>
         </div>
-        <div className="ticker" aria-hidden="true"><div className="ticker-track">HOLYWIN ✳ LIGHT UP THE NIGHT ✳ PLANT HOPE ✳ GROW IN FAITH ✳ HOLYWIN ✳ LIGHT UP THE NIGHT ✳ PLANT HOPE ✳ GROW IN FAITH ✳ </div></div>
+        <div className="ticker" aria-hidden="true">
+          <div className="ticker-track">YET TO ALL WHO DID RECEIVE HIM, TO THOSE WHO BELIEVED IN HIS NAME, HE GAVE THE RIGHT TO BECOME CHILDREN OF GOD ✳ JOHN 1:12 ✳ YET TO ALL WHO DID RECEIVE HIM, TO THOSE WHO BELIEVED IN HIS NAME, HE GAVE THE RIGHT TO BECOME CHILDREN OF GOD ✳ JOHN 1:12 ✳ </div>
+        </div>
       </section>
   )
 }
