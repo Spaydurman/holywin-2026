@@ -4,7 +4,7 @@ import { useReveal } from '../hooks/useReveal'
 export default function Details() {
   const reveal = useReveal()
   return (
-      <section className="details section" id="details" aria-labelledby="details-title">
+      <section className="details section flex min-h-dvh items-center" id="details" aria-labelledby="details-title">
         <div className="container">
           <motion.div className="section-heading details-heading" {...reveal}><div><span className="kicker">01 / MARK YOUR CALENDAR</span><h2 id="details-title">THE <span>LOWDOWN.</span></h2></div><p>Everything you need to know before the fun begins. More details are on the way!</p></motion.div>
           <div className="details-grid">

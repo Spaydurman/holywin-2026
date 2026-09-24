@@ -14,8 +14,8 @@ export default function Hero() {
     return () => { animation.pause() }
   }, [reduceMotion])
   return (
-      <section className="hero" aria-labelledby="hero-title">
-        <div className="hero-grid container">
+      <section className="hero flex min-h-dvh flex-col" aria-labelledby="hero-title">
+        <div className="hero-grid container flex-1">
           <div className="hero-copy">
             <div className="eyebrow"><span className="eyebrow-star">✳</span> A DIFFERENT KIND OF CELEBRATION <span className="eyebrow-star">✳</span></div>
             <h1 id="hero-title" ref={titleRef} aria-label="Holywin"><span className="hero-word">{'HOLY'.split('').map((letter, i) => <span className="hero-letter" key={i}>{letter}</span>)}</span><span className="hero-word hero-word-outline">{'WIN!'.split('').map((letter, i) => <span className="hero-letter" key={i}>{letter}</span>)}</span></h1>
