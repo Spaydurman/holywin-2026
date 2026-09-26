@@ -1,1 +1,9 @@
 @import "tailwindcss";
+
+@theme {
+  --animate-ticker: ticker 44s linear infinite;
+
+  @keyframes ticker {
+    to { transform: translateX(-50%); }
+  }
+}

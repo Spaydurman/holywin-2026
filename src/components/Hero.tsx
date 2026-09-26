@@ -3,6 +3,9 @@ import { animate } from 'animejs'
 import { motion, useReducedMotion } from 'motion/react'
 import { ArrowDownRight, ArrowRight, Sprout } from 'lucide-react'
 import { Star } from './Brand'
+
+const tickerMessage = 'YET TO ALL WHO DID RECEIVE HIM, TO THOSE WHO BELIEVED IN HIS NAME, HE GAVE THE RIGHT TO BECOME CHILDREN OF GOD ✳ JOHN 1:12 ✳\u00a0\u00a0'
+
 export default function Hero() {
   const titleRef = useRef<HTMLHeadingElement>(null)
   const reduceMotion = useReducedMotion()
@@ -18,7 +21,10 @@ export default function Hero() {
         <div className="hero-grid container flex-1">
           <div className="hero-copy">
             <div className="eyebrow"><span className="eyebrow-star">✳</span> RECEIVE · BELIEVE · BECOME <span className="eyebrow-star">✳</span></div>
-            <h1 id="hero-title" ref={titleRef} aria-label="Holywin"><span className="hero-word">{'HOLY'.split('').map((letter, i) => <span className="hero-letter" key={i}>{letter}</span>)}</span><span className="hero-word hero-word-outline">{'WIN!'.split('').map((letter, i) => <span className="hero-letter" key={i}>{letter}</span>)}</span></h1>
+            <h1 id="hero-title" ref={titleRef} aria-label="Holywin" className="mt-[35px] mb-0 max-w-[760px] font-['Archivo_Black'] text-[clamp(90px,11.1vw,176px)] leading-[.79] tracking-[-.08em] max-[1100px]:text-[clamp(70px,10vw,120px)] max-[760px]:mt-[29px] max-[760px]:text-[clamp(69px,18vw,130px)] max-[440px]:text-[17.5vw]">
+              <span className="block whitespace-nowrap">{'HOLY'.split('').map((letter, i) => <span className="hero-letter inline-block opacity-0 motion-reduce:opacity-100" key={i}>{letter}</span>)}</span>
+              <span className="mt-[13px] block whitespace-nowrap text-[#f7f5ed] [-webkit-text-stroke:3px_#111] [text-shadow:5px_5px_0_#111] max-[760px]:[-webkit-text-stroke:2px_#111] max-[760px]:[text-shadow:3px_3px_0_#111]">{'WIN!'.split('').map((letter, i) => <span className="hero-letter inline-block opacity-0 motion-reduce:opacity-100" key={i}>{letter}</span>)}</span>
+            </h1>
             <div className="hero-rule" />
             <blockquote className="max-w-[530px]">
               <p className="hero-lede">“Yet to all who did receive him, to those who believed in his name, he gave the right to become children of God.”</p>
@@ -38,8 +44,10 @@ export default function Hero() {
             <div className="doodle-arrow" aria-hidden="true">↗</div>
           </div>
         </div>
-        <div className="ticker" aria-hidden="true">
-          <div className="ticker-track">YET TO ALL WHO DID RECEIVE HIM, TO THOSE WHO BELIEVED IN HIS NAME, HE GAVE THE RIGHT TO BECOME CHILDREN OF GOD ✳ JOHN 1:12 ✳ YET TO ALL WHO DID RECEIVE HIM, TO THOSE WHO BELIEVED IN HIS NAME, HE GAVE THE RIGHT TO BECOME CHILDREN OF GOD ✳ JOHN 1:12 ✳ </div>
+        <div className="ticker overflow-hidden border-y-2 border-[#111] bg-[#111] text-white" aria-hidden="true">
+          <div className="ticker-track flex w-max animate-ticker whitespace-nowrap py-[15px] font-['Archivo_Black'] text-[17px] tracking-[.07em] motion-reduce:animate-none">
+            {Array.from({ length: 6 }, (_, index) => <span className="shrink-0" key={index}>{tickerMessage}</span>)}
+          </div>
         </div>
       </section>
   )
