@@ -1,4 +1,5 @@
 import { motion } from 'motion/react'
+import { useState } from 'react'
 import { useReveal } from '../hooks/useReveal'
 
 const photos = [
@@ -9,6 +10,45 @@ const photos = [
   { src: '/Holywin/H5.jpg', alt: 'Holywin group celebrating with colorful balloons', caption: 'CELEBRATE TOGETHER' },
   { src: '/Holywin/H6.jpg', alt: 'Holywin group posing with colorful game themed decorations', caption: 'LEVEL UP TOGETHER' },
 ]
+
+type Photo = (typeof photos)[number]
+
+function GalleryCard({ photo, index }: { photo: Photo; index: number }) {
+  const reveal = useReveal()
+  const [colorMode, setColorMode] = useState<'default' | 'hover' | 'clicked' | 'off'>('default')
+  const isColored = colorMode === 'hover' || colorMode === 'clicked'
+
+  return (
+    <motion.figure className="gallery-card" {...reveal}>
+      <button
+        type="button"
+        className="block w-full cursor-pointer border-0 bg-transparent p-0"
+        aria-label={`Toggle color: ${photo.alt}`}
+        aria-pressed={colorMode === 'clicked'}
+        onPointerEnter={(event) => {
+          if (event.pointerType !== 'touch') setColorMode('hover')
+        }}
+        onPointerLeave={(event) => {
+          if (event.pointerType !== 'touch') setColorMode('default')
+        }}
+        onFocus={() => setColorMode((mode) => mode === 'default' ? 'hover' : mode)}
+        onBlur={() => setColorMode('default')}
+        onClick={() => setColorMode((mode) => mode === 'clicked' ? 'off' : 'clicked')}
+      >
+        <img
+          className={`block h-[300px] w-full transition-[filter] duration-300 ease-in-out max-[760px]:h-[380px] max-[440px]:h-[300px] motion-reduce:transition-none ${isColored ? 'grayscale-0' : 'grayscale'} ${index === 1 ? 'bg-[#111] object-contain' : 'object-cover'}`}
+          src={photo.src}
+          alt={photo.alt}
+          loading="lazy"
+        />
+      </button>
+      <figcaption className="gallery-caption">
+        <strong>{photo.caption}</strong>
+        <span>{String(index + 1).padStart(2, '0')} / {String(photos.length).padStart(2, '0')}</span>
+      </figcaption>
+    </motion.figure>
+  )
+}
 
 export default function Moments() {
   const reveal = useReveal()
@@ -25,13 +65,7 @@ export default function Moments() {
         </motion.div>
         <div className="gallery-grid">
           {photos.map((photo, index) => (
-            <motion.figure className="gallery-card" key={photo.src} {...reveal}>
-              <img className="gallery-photo" src={photo.src} alt={photo.alt} loading="lazy" />
-              <figcaption className="gallery-caption">
-                <strong>{photo.caption}</strong>
-                <span>{String(index + 1).padStart(2, '0')} / {String(photos.length).padStart(2, '0')}</span>
-              </figcaption>
-            </motion.figure>
+            <GalleryCard photo={photo} index={index} key={photo.src} />
           ))}
         </div>
       </div>
