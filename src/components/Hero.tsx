@@ -36,7 +36,7 @@ export default function Hero() {
           </div>
           <div className="hero-art-wrap">
             <motion.div className="hero-art" initial={reduceMotion ? false : { opacity: 0, scale: .94, rotate: -2 }} animate={{ opacity: 1, scale: 1, rotate: 0 }} transition={{ duration: .8, ease: 'easeOut' }}>
-              <img src="/holywin-hero.png" alt="Illustration of young people planting a seedling together" />
+              <img className="aspect-[3/2] w-full object-cover object-center grayscale contrast-[1.08]" src="/Holywin/H6.jpg" alt="Holywin group posing together at the Level Up event" />
               <div className="hero-art-label">LET THE<br />GOOD GROW!</div>
             </motion.div>
             <motion.div className="round-sticker" animate={reduceMotion ? {} : { rotate: [0, 6, -4, 0] }} transition={{ duration: 6, repeat: Infinity, ease: 'easeInOut' }}><span>ROOTED<br />IN HOPE</span><Sprout size={28} strokeWidth={2.7} /></motion.div>
