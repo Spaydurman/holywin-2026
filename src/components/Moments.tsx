@@ -3,12 +3,12 @@ import { useState } from 'react'
 import { useReveal } from '../hooks/useReveal'
 
 const photos = [
-  { src: '/Holywin/H1.png', alt: 'Holywin attendees smiling together in a group photo', caption: 'GATHER TOGETHER' },
-  { src: '/Holywin/H2.png', alt: 'Collage of people connecting through video calls and activities', caption: 'STAY CONNECTED' },
-  { src: '/Holywin/H3.png', alt: 'Holywin group gathered beneath colorful decorations', caption: 'MAKE MEMORIES' },
-  { src: '/Holywin/H4.jpg', alt: 'Holywin attendees holding gifts for a group photo', caption: 'SHARE THE JOY' },
-  { src: '/Holywin/H5.jpg', alt: 'Holywin group celebrating with colorful balloons', caption: 'CELEBRATE TOGETHER' },
-  { src: '/Holywin/H6.jpg', alt: 'Holywin group posing with colorful game themed decorations', caption: 'LEVEL UP TOGETHER' },
+  { src: '/Holywin/H1.png', alt: 'Holywin attendees smiling together in a group photo', caption: 'Wanderland - 2019' },
+  { src: '/Holywin/H2.png', alt: 'Collage of people connecting through video calls and activities', caption: 'Squid Game - 2021' },
+  { src: '/Holywin/H3.png', alt: 'Holywin group gathered beneath colorful decorations', caption: 'Book of Life - 2022' },
+  { src: '/Holywin/H4.jpg', alt: 'Holywin attendees holding gifts for a group photo', caption: 'One Peace - 2023' },
+  { src: '/Holywin/H5.jpg', alt: 'Holywin group celebrating with colorful balloons', caption: 'Inside out - 2024' },
+  { src: '/Holywin/H6.jpg', alt: 'Holywin group posing with colorful game themed decorations', caption: 'Level Up - 2025' },
 ]
 
 type Photo = (typeof photos)[number]
