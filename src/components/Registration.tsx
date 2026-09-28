@@ -64,7 +64,7 @@ export default function Registration() {
               <span className="form-kicker">YOU'RE IN THE MIX</span>
               <h3>AWESOME,<br />{name.trim().split(' ')[0].toUpperCase()}!</h3>
               <p>Your registration has been received. We look forward to seeing you!</p>
-              <button className="button button-dark" type="button" onClick={resetForm}>Register another person <ArrowRight size={19} /></button>
+              <button className="button button-dark" type="button" onClick={resetForm}>Make Another Registration <ArrowRight size={19} /></button>
             </div>
           ) : (
             <form onSubmit={handleSubmit}>

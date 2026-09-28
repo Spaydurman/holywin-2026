@@ -23,7 +23,7 @@ function PixelGrid({ columns, className, reducedMotion }: {
         return filled ? (
           <motion.span
             key={index}
-            className={`aspect-square w-full ${row < rows / 2 ? 'bg-black' : 'bg-[#f7f5ed]'}`}
+            className="relative aspect-square w-full"
             variants={reducedMotion ? undefined : {
               hidden: { opacity: 0, scale: 0 },
               visible: {
@@ -36,7 +36,9 @@ function PixelGrid({ columns, className, reducedMotion }: {
                 },
               },
             }}
-          />
+          >
+            <span className={`absolute -inset-px ${row < rows / 2 ? 'bg-black' : 'bg-[#f7f5ed]'}`} />
+          </motion.span>
         ) : <span key={index} className="aspect-square w-full" />
       })}
     </motion.div>
