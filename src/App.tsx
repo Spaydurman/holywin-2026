@@ -2,6 +2,7 @@ import Header from './components/Header'
 import Hero from './components/Hero'
 import Details from './components/Details'
 import About from './components/About'
+import PixelTransition from './components/PixelTransition'
 import Moments from './components/Moments'
 import Registration from './components/Registration'
 import Footer from './components/Footer'
@@ -15,6 +16,7 @@ export default function App() {
       <Hero />
       <Details />
       <About />
+      <PixelTransition />
       <Moments />
       <Registration />
     </main>
