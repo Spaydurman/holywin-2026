@@ -3,6 +3,7 @@ import { animate } from 'animejs'
 import { motion, useReducedMotion } from 'motion/react'
 import { ArrowDownRight, ArrowRight, Sprout } from 'lucide-react'
 import { Star } from './Brand'
+import ColorToggleImage from './ColorToggleImage'
 
 const tickerMessage = 'YET TO ALL WHO DID RECEIVE HIM, TO THOSE WHO BELIEVED IN HIS NAME, HE GAVE THE RIGHT TO BECOME CHILDREN OF GOD ✳ JOHN 1:12 ✳\u00a0\u00a0'
 
@@ -36,12 +37,12 @@ export default function Hero() {
           </div>
           <div className="hero-art-wrap">
             <motion.div className="hero-art" initial={reduceMotion ? false : { opacity: 0, scale: .94, rotate: -2 }} animate={{ opacity: 1, scale: 1, rotate: 0 }} transition={{ duration: .8, ease: 'easeOut' }}>
-              <img className="aspect-[3/2] w-full object-cover object-center grayscale contrast-[1.08]" src="/Holywin/H6.jpg" alt="Holywin group posing together at the Level Up event" />
-              <div className="hero-art-label">LET THE<br />GOOD GROW!</div>
+              <ColorToggleImage className="aspect-[3/2] object-cover object-center contrast-[1.08]" src="/Holywin/H6.jpg" alt="Holywin group posing together at the Level Up event" />
+              <div className="hero-art-label pointer-events-none">LET THE<br />GOOD GROW!</div>
             </motion.div>
-            <motion.div className="round-sticker" animate={reduceMotion ? {} : { rotate: [0, 6, -4, 0] }} transition={{ duration: 6, repeat: Infinity, ease: 'easeInOut' }}><span>ROOTED<br />IN HOPE</span><Sprout size={28} strokeWidth={2.7} /></motion.div>
-            <Star className="hero-star hero-star-one" /><Star className="hero-star hero-star-two" />
-            <div className="doodle-arrow" aria-hidden="true">↗</div>
+            <motion.div className="round-sticker pointer-events-none" animate={reduceMotion ? {} : { rotate: [0, 6, -4, 0] }} transition={{ duration: 6, repeat: Infinity, ease: 'easeInOut' }}><span>ROOTED<br />IN HOPE</span><Sprout size={28} strokeWidth={2.7} /></motion.div>
+            <Star className="hero-star hero-star-one pointer-events-none" /><Star className="hero-star hero-star-two pointer-events-none" />
+            <div className="doodle-arrow pointer-events-none" aria-hidden="true">↗</div>
           </div>
         </div>
         <div className="ticker overflow-hidden border-y-2 border-[#111] bg-[#111] text-white" aria-hidden="true">

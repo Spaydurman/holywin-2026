@@ -1,6 +1,6 @@
 import { motion } from 'motion/react'
-import { useState } from 'react'
 import { useReveal } from '../hooks/useReveal'
+import ColorToggleImage from './ColorToggleImage'
 
 const photos = [
   { src: '/Holywin/H1.png', alt: 'Holywin attendees smiling together in a group photo', caption: 'Wanderland - 2019' },
@@ -15,33 +15,15 @@ type Photo = (typeof photos)[number]
 
 function GalleryCard({ photo, index }: { photo: Photo; index: number }) {
   const reveal = useReveal()
-  const [colorMode, setColorMode] = useState<'default' | 'hover' | 'clicked' | 'off'>('default')
-  const isColored = colorMode === 'hover' || colorMode === 'clicked'
 
   return (
     <motion.figure className="gallery-card" {...reveal}>
-      <button
-        type="button"
-        className="block w-full cursor-pointer border-0 bg-transparent p-0"
-        aria-label={`Toggle color: ${photo.alt}`}
-        aria-pressed={colorMode === 'clicked'}
-        onPointerEnter={(event) => {
-          if (event.pointerType !== 'touch') setColorMode('hover')
-        }}
-        onPointerLeave={(event) => {
-          if (event.pointerType !== 'touch') setColorMode('default')
-        }}
-        onFocus={() => setColorMode((mode) => mode === 'default' ? 'hover' : mode)}
-        onBlur={() => setColorMode('default')}
-        onClick={() => setColorMode((mode) => mode === 'clicked' ? 'off' : 'clicked')}
-      >
-        <img
-          className={`block h-[300px] w-full transition-[filter] duration-300 ease-in-out max-[760px]:h-[380px] max-[440px]:h-[300px] motion-reduce:transition-none ${isColored ? 'grayscale-0' : 'grayscale'} ${index === 1 ? 'bg-[#111] object-contain' : 'object-cover'}`}
-          src={photo.src}
-          alt={photo.alt}
-          loading="lazy"
-        />
-      </button>
+      <ColorToggleImage
+        src={photo.src}
+        alt={photo.alt}
+        loading="lazy"
+        className={`h-[300px] max-[760px]:h-[380px] max-[440px]:h-[300px] ${index === 1 ? 'bg-[#111] object-contain' : 'object-cover'}`}
+      />
       <figcaption className="gallery-caption">
         <strong>{photo.caption}</strong>
         <span>{String(index + 1).padStart(2, '0')} / {String(photos.length).padStart(2, '0')}</span>
