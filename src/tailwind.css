@@ -2,8 +2,22 @@
 
 @theme {
   --animate-ticker: ticker 44s linear infinite;
+  --animate-bear-cross: bear-cross 18s linear -3s infinite;
+  --animate-bear-legs: bear-legs 640ms linear infinite;
 
   @keyframes ticker {
     to { transform: translateX(-50%); }
+  }
+
+  @keyframes bear-cross {
+    from { transform: translateX(-100%); }
+    to { transform: translateX(100vw); }
+  }
+
+  @keyframes bear-legs {
+    0%, 24.99% { background-position: 0% 0; }
+    25%, 49.99% { background-position: 33.333% 0; }
+    50%, 74.99% { background-position: 66.667% 0; }
+    75%, 100% { background-position: 100% 0; }
   }
 }
