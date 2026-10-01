@@ -4,6 +4,7 @@ import { motion, useReducedMotion } from 'motion/react'
 import { ArrowDownRight, ArrowRight, Sprout } from 'lucide-react'
 import { Star } from './Brand'
 import ColorToggleImage from './ColorToggleImage'
+import HeroCharacters from './HeroCharacters'
 
 const tickerMessage = 'YET TO ALL WHO DID RECEIVE HIM, TO THOSE WHO BELIEVED IN HIS NAME, HE GAVE THE RIGHT TO BECOME CHILDREN OF GOD ✳ JOHN 1:12 ✳\u00a0\u00a0'
 
@@ -35,7 +36,7 @@ export default function Hero() {
             <div className="hero-actions"><a className="button button-dark" href="#register">Count me in <ArrowRight size={20} /></a><a className="text-link" href="#about">What is Holywin? <ArrowDownRight size={20} /></a></div>
             <div className="hero-side-note"><span className="tiny-cross">✦</span> FAITH · FUN · FRIENDSHIP</div>
           </div>
-          <div className="hero-art-wrap">
+          <div className="hero-art-wrap group/heroart">
             <motion.div className="hero-art" initial={reduceMotion ? false : { opacity: 0, scale: .94, rotate: -2 }} animate={{ opacity: 1, scale: 1, rotate: 0 }} transition={{ duration: .8, ease: 'easeOut' }}>
               <ColorToggleImage className="aspect-[3/2] object-cover object-center contrast-[1.08]" src="/Holywin/H6.jpg" alt="Holywin group posing together at the Level Up event" />
               <div className="hero-art-label pointer-events-none">LET THE<br />GOOD GROW!</div>
@@ -43,6 +44,7 @@ export default function Hero() {
             <motion.div className="round-sticker pointer-events-none" animate={reduceMotion ? {} : { rotate: [0, 6, -4, 0] }} transition={{ duration: 6, repeat: Infinity, ease: 'easeInOut' }}><span>ROOTED<br />IN HOPE</span><Sprout size={28} strokeWidth={2.7} /></motion.div>
             <Star className="hero-star hero-star-one pointer-events-none" /><Star className="hero-star hero-star-two pointer-events-none" />
             <div className="doodle-arrow pointer-events-none" aria-hidden="true">↗</div>
+            <HeroCharacters />
           </div>
         </div>
         <div className="ticker overflow-hidden border-y-2 border-[#111] bg-[#111] text-white" aria-hidden="true">
