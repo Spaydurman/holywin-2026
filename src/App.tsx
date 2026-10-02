@@ -1,6 +1,7 @@
 import Header from './components/Header'
 import Hero from './components/Hero'
 import Details from './components/Details'
+import PowerpuffFlight from './components/PowerpuffFlight'
 import About from './components/About'
 import PixelTransition from './components/PixelTransition'
 import Moments from './components/Moments'
@@ -15,6 +16,7 @@ export default function App() {
     <main id="main">
       <Hero />
       <Details />
+      <PowerpuffFlight />
       <About />
       <PixelTransition />
       <Moments />
