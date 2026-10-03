@@ -2,19 +2,18 @@ import { useEffect, useRef, useState } from 'react'
 import { motion, useReducedMotion, useScroll, useSpring, useTransform } from 'motion/react'
 
 const spriteParts = [
-  { x: 5, y: 478, width: 24, left: 0, top: 0 }, // Bubbles
-  { x: 5, y: 142, width: 26, left: 12, top: 17 }, // Blossom
-  { x: 4, y: 793, width: 24, left: 23, top: 34 }, // Buttercup
+  { x: 5, y: 477, width: 24, height: 27, left: 5, top: 0 }, // Bubbles
+  { x: 5, y: 138, width: 26, height: 30, left: 26, top: 17 }, // Blossom
+  { x: 4, y: 796, width: 24, height: 27, left: 0, top: 36 }, // Buttercup
 ]
 
 const trails = [
-  { position: 'top-[23%]', color: 'from-transparent via-[#a9e3f7]/80 to-[#6fcdf1]', echo: 'bg-[#bceafa]/55' },
-  { position: 'top-[50%]', color: 'from-transparent via-[#f7a3bd]/80 to-[#ee719d]', echo: 'bg-[#fac4d3]/55' },
-  { position: 'top-[77%]', color: 'from-transparent via-[#b8e9a3]/80 to-[#81cf75]', echo: 'bg-[#ccefc1]/55' },
+  { position: 'top-[23%] right-[80%]', color: 'from-transparent via-[#a9e3f7]/80 to-[#6fcdf1]', echo: 'bg-[#bceafa]/55' },
+  { position: 'top-[50%] right-[40%]', color: 'from-transparent via-[#f7a3bd]/80 to-[#ee719d]', echo: 'bg-[#fac4d3]/55' },
+  { position: 'top-[77%] right-[90%]', color: 'from-transparent via-[#b8e9a3]/80 to-[#81cf75]', echo: 'bg-[#ccefc1]/55' },
 ]
 
-const spriteHeight = 30
-const trioWidth = 49
+const trioWidth = 52
 const trioHeight = 64
 
 function makeTrioSprite(image: HTMLImageElement): string | null {
@@ -30,11 +29,11 @@ function makeTrioSprite(image: HTMLImageElement): string | null {
 
   for (const part of spriteParts) {
     piece.width = part.width
-    piece.height = spriteHeight
-    pieceContext.clearRect(0, 0, part.width, spriteHeight)
-    pieceContext.drawImage(image, part.x, part.y, part.width, spriteHeight, 0, 0, part.width, spriteHeight)
+    piece.height = part.height
+    pieceContext.clearRect(0, 0, part.width, part.height)
+    pieceContext.drawImage(image, part.x, part.y, part.width, part.height, 0, 0, part.width, part.height)
 
-    const pixels = pieceContext.getImageData(0, 0, part.width, spriteHeight)
+    const pixels = pieceContext.getImageData(0, 0, part.width, part.height)
     for (let index = 0; index < pixels.data.length; index += 4) {
       const red = pixels.data[index]
       const green = pixels.data[index + 1]
@@ -59,7 +58,6 @@ export default function PowerpuffFlight() {
   const progress = useSpring(scrollYProgress, { stiffness: 150, damping: 30, mass: 0.25 })
   const x = useTransform(progress, [0, 1], ['-22vw', '112vw'])
   const bob = useTransform(progress, [0, 0.25, 0.5, 0.75, 1], [0, -7, 3, -5, 0])
-  const trailScale = useTransform(progress, [0.04, 0.88], [0, 1])
 
   useEffect(() => {
     const image = new Image()
@@ -70,41 +68,34 @@ export default function PowerpuffFlight() {
   return (
     <section
       ref={sectionRef}
-      className="relative h-[185dvh] overflow-clip bg-[#f7f5ed] motion-reduce:h-[340px]"
+      className="relative h-[185dvh] overflow-clip bg-[#eae8df] motion-reduce:h-[340px]"
       role="img"
       aria-label="Bubbles, Blossom, and Buttercup fly together from left to right, leaving blue, pink, and green trails before the next section."
     >
-      <div className="sticky top-0 h-dvh overflow-hidden bg-[linear-gradient(180deg,#f7f5ed_0%,#f7f0f4_46%,#f7f5ed_100%)] motion-reduce:relative motion-reduce:h-[340px]">
-        <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-[#111]/15" aria-hidden="true" />
-        <div className="pointer-events-none absolute inset-x-0 top-1/2 h-[180px] -translate-y-1/2 min-[761px]:h-[240px]" aria-hidden="true">
+      <div className="sticky top-0 h-dvh overflow-hidden bg-[#eae8df] motion-reduce:relative motion-reduce:h-[340px]">
+        <motion.div
+          className="pointer-events-none absolute top-1/2 left-0 h-[180px] aspect-[52/64] -translate-y-1/2 min-[761px]:h-[240px]"
+          style={{ x: reducedMotion ? '35vw' : x, y: reducedMotion ? 0 : bob }}
+          aria-hidden="true"
+        >
           {trails.map((trail) => (
-            <div key={trail.position} className={['absolute inset-x-0', trail.position].join(' ')}>
-              <motion.div
-                className={['absolute left-0 top-0 h-4 w-screen origin-left bg-gradient-to-r min-[761px]:h-7', trail.color].join(' ')}
-                style={{ scaleX: reducedMotion ? 0.52 : trailScale }}
-              />
-              <motion.div
-                className={['absolute left-0 -top-4 h-2 w-[90vw] origin-left min-[761px]:h-3', trail.echo].join(' ')}
-                style={{ scaleX: reducedMotion ? 0.45 : trailScale }}
-              />
-              <motion.div
-                className={['absolute left-0 top-6 h-1.5 w-[82vw] origin-left min-[761px]:top-9 min-[761px]:h-2', trail.echo].join(' ')}
-                style={{ scaleX: reducedMotion ? 0.42 : trailScale }}
-              />
+            <div key={trail.position} className={['absolute', trail.position].join(' ')}>
+              <div className={['absolute right-0 top-0 h-4 w-[140vw] bg-gradient-to-r min-[761px]:h-7', trail.color].join(' ')} />
+              <div className={['absolute right-0 -top-4 h-2 w-[130vw] min-[761px]:h-3', trail.echo].join(' ')} />
+              <div className={['absolute right-0 top-6 h-1.5 w-[125vw] min-[761px]:top-9 min-[761px]:h-2', trail.echo].join(' ')} />
             </div>
           ))}
           {trioSprite && (
-            <motion.img
+            <img
               src={trioSprite}
               alt=""
               width={trioWidth}
               height={trioHeight}
-              className="absolute left-0 top-0 h-full w-auto max-w-none [image-rendering:pixelated]"
-              style={{ x: reducedMotion ? '35vw' : x, y: reducedMotion ? 0 : bob }}
+              className="absolute inset-0 h-full w-full max-w-none [image-rendering:pixelated]"
               draggable={false}
             />
           )}
-        </div>
+        </motion.div>
       </div>
     </section>
   )
