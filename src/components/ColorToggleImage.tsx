@@ -5,27 +5,34 @@ type ColorToggleImageProps = {
   alt: string
   className: string
   loading?: 'eager' | 'lazy'
+  onPressedChange?: (pressed: boolean) => void
 }
 
-export default function ColorToggleImage({ src, alt, className, loading }: ColorToggleImageProps) {
-  const [colorMode, setColorMode] = useState<'default' | 'hover' | 'clicked' | 'off'>('default')
-  const isColored = colorMode === 'hover' || colorMode === 'clicked'
+export default function ColorToggleImage({ src, alt, className, loading, onPressedChange }: ColorToggleImageProps) {
+  const [isHovered, setIsHovered] = useState(false)
+  const [isFocused, setIsFocused] = useState(false)
+  const [isPressed, setIsPressed] = useState(false)
+  const isColored = isHovered || isFocused || isPressed
 
   return (
     <button
       type="button"
       className="block w-full cursor-pointer border-0 bg-transparent p-0"
       aria-label={`Toggle color: ${alt}`}
-      aria-pressed={colorMode === 'clicked'}
+      aria-pressed={isPressed}
       onPointerEnter={(event) => {
-        if (event.pointerType !== 'touch') setColorMode('hover')
+        if (event.pointerType !== 'touch') setIsHovered(true)
       }}
       onPointerLeave={(event) => {
-        if (event.pointerType !== 'touch') setColorMode('default')
+        if (event.pointerType !== 'touch') setIsHovered(false)
       }}
-      onFocus={() => setColorMode((mode) => mode === 'default' ? 'hover' : mode)}
-      onBlur={() => setColorMode('default')}
-      onClick={() => setColorMode((mode) => mode === 'clicked' ? 'off' : 'clicked')}
+      onFocus={() => setIsFocused(true)}
+      onBlur={() => setIsFocused(false)}
+      onClick={() => {
+        const nextPressed = !isPressed
+        setIsPressed(nextPressed)
+        onPressedChange?.(nextPressed)
+      }}
     >
       <img
         className={`block w-full transition-[filter] duration-300 ease-in-out motion-reduce:transition-none ${isColored ? 'grayscale-0' : 'grayscale'} ${className}`}

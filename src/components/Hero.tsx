@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { animate } from 'animejs'
 import { motion, useReducedMotion } from 'motion/react'
 import { ArrowDownRight, ArrowRight, Sprout } from 'lucide-react'
@@ -11,6 +11,7 @@ const tickerMessage = 'YET TO ALL WHO DID RECEIVE HIM, TO THOSE WHO BELIEVED IN 
 export default function Hero() {
   const titleRef = useRef<HTMLHeadingElement>(null)
   const reduceMotion = useReducedMotion()
+  const [charactersActive, setCharactersActive] = useState(false)
 
   useEffect(() => {
     if (reduceMotion || !titleRef.current) return
@@ -38,13 +39,13 @@ export default function Hero() {
           </div>
           <div className="hero-art-wrap group/heroart">
             <motion.div className="hero-art" initial={reduceMotion ? false : { opacity: 0, scale: .94, rotate: -2 }} animate={{ opacity: 1, scale: 1, rotate: 0 }} transition={{ duration: .8, ease: 'easeOut' }}>
-              <ColorToggleImage className="aspect-[3/2] object-cover object-center contrast-[1.08]" src="/Holywin/H6.jpg" alt="Holywin group posing together at the Level Up event" />
+              <ColorToggleImage className="aspect-[3/2] object-cover object-center contrast-[1.08]" src="/Holywin/H6.jpg" alt="Holywin group posing together at the Level Up event" onPressedChange={setCharactersActive} />
               <div className="hero-art-label pointer-events-none">LET THE<br />GOOD GROW!</div>
             </motion.div>
             <motion.div className="round-sticker pointer-events-none" animate={reduceMotion ? {} : { rotate: [0, 6, -4, 0] }} transition={{ duration: 6, repeat: Infinity, ease: 'easeInOut' }}><span>ROOTED<br />IN HOPE</span><Sprout size={28} strokeWidth={2.7} /></motion.div>
             <Star className="hero-star hero-star-one pointer-events-none" /><Star className="hero-star hero-star-two pointer-events-none" />
             <div className="doodle-arrow pointer-events-none" aria-hidden="true">↗</div>
-            <HeroCharacters />
+            <HeroCharacters active={charactersActive} />
           </div>
         </div>
         <div className="ticker overflow-hidden border-y-2 border-[#111] bg-[#111] text-white" aria-hidden="true">
