@@ -1,18 +1,23 @@
-import { useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 
 type ColorToggleImageProps = {
   src: string
   alt: string
   className: string
   loading?: 'eager' | 'lazy'
-  onPressedChange?: (pressed: boolean) => void
+  onActiveChange?: (active: boolean) => void
 }
 
-export default function ColorToggleImage({ src, alt, className, loading, onPressedChange }: ColorToggleImageProps) {
+export default function ColorToggleImage({ src, alt, className, loading, onActiveChange }: ColorToggleImageProps) {
   const [isHovered, setIsHovered] = useState(false)
   const [isFocused, setIsFocused] = useState(false)
   const [isPressed, setIsPressed] = useState(false)
+  const lastPointerType = useRef<string | null>(null)
   const isColored = isHovered || isFocused || isPressed
+
+  useEffect(() => {
+    onActiveChange?.(isColored)
+  }, [isColored, onActiveChange])
 
   return (
     <button
@@ -26,12 +31,14 @@ export default function ColorToggleImage({ src, alt, className, loading, onPress
       onPointerLeave={(event) => {
         if (event.pointerType !== 'touch') setIsHovered(false)
       }}
-      onFocus={() => setIsFocused(true)}
+      onPointerDown={(event) => { lastPointerType.current = event.pointerType }}
+      onFocus={(event) => setIsFocused(event.currentTarget.matches(':focus-visible'))}
       onBlur={() => setIsFocused(false)}
-      onClick={() => {
-        const nextPressed = !isPressed
-        setIsPressed(nextPressed)
-        onPressedChange?.(nextPressed)
+      onClick={(event) => {
+        if (event.detail === 0 || lastPointerType.current === 'touch') {
+          setIsPressed((pressed) => !pressed)
+        }
+        lastPointerType.current = null
       }}
     >
       <img
