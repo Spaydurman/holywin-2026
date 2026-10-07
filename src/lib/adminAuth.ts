@@ -98,13 +98,22 @@ export async function signOutAdmin(): Promise<void> {
   }).catch(() => undefined)
 }
 
-export async function getRegistrations() {
+export type AdminRegistration = { id: string; full_name: string; email: string; invited_by: string | null; created_at: string }
+
+export async function getRegistrations(): Promise<AdminRegistration[]> {
   const session = await validSession()
   if (!session) throw new Error('Your session has expired. Please sign in again.')
   const { url, key } = config()
-  const response = await fetch(`${url}/rest/v1/registrations?select=id,full_name,email,invited_by,created_at&order=created_at.desc`, {
-    headers: { apikey: key, Authorization: `Bearer ${session.access_token}` },
-  })
-  if (!response.ok) throw new Error('Could not load registrations.')
-  return response.json() as Promise<{ id: string; full_name: string; email: string; invited_by: string | null; created_at: string }[]>
+  const registrations: AdminRegistration[] = []
+  const pageSize = 1000
+
+  for (let start = 0; ; start += pageSize) {
+    const response = await fetch(`${url}/rest/v1/registrations?select=id,full_name,email,invited_by,created_at&order=created_at.desc&offset=${start}&limit=${pageSize}`, {
+      headers: { apikey: key, Authorization: `Bearer ${session.access_token}` },
+    })
+    if (!response.ok) throw new Error('Could not load registrations.')
+    const page = await response.json() as AdminRegistration[]
+    registrations.push(...page)
+    if (page.length < pageSize) return registrations
+  }
 }
