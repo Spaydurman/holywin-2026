@@ -1,11 +1,20 @@
 // Run on a trusted machine only. Never put the service role key in VITE_* variables.
-const url = process.env.SUPABASE_URL?.replace(/\/$/, '')
+import { loadEnvFile } from 'node:process'
+import { fileURLToPath } from 'node:url'
+
+try {
+  loadEnvFile(fileURLToPath(new URL('../.env', import.meta.url)))
+} catch (error) {
+  if (error.code !== 'ENOENT') throw error
+}
+
+const url = process.env.VITE_SUPABASE_URL?.replace(/\/$/, '')
 const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY
 const password = process.env.HOLYWIN_ADMIN_PASSWORD || 'TSA_Holywin2026'
 const email = 'admin@holywin.local'
 
 if (!url || !serviceKey) {
-  console.error('Set SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY before running this script.')
+  console.error(`Set ${!url ? 'VITE_SUPABASE_URL' : 'SUPABASE_SERVICE_ROLE_KEY'} in .env before running this script.`)
   process.exit(1)
 }
 
@@ -17,6 +26,9 @@ async function request(path, options = {}) {
   const body = await response.text()
   return body ? JSON.parse(body) : null
 }
+
+// Fail before creating an Auth user when the admin role migration is missing.
+await request('/rest/v1/admin_users?select=user_id&limit=0')
 
 let existing
 for (let page = 1; !existing; page++) {
