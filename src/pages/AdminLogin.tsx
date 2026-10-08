@@ -8,7 +8,7 @@ function navigate(path: string) {
   window.location.assign(path)
 }
 
-export function AdminLogin() {
+export default function AdminLogin() {
   const [username, setUsername] = useState('')
   const [password, setPassword] = useState('')
   const [error, setError] = useState('')
@@ -60,4 +60,3 @@ export function AdminLogin() {
   </main>
 }
 
-export { AdminDashboard, AdminRegistrations } from './AdminPages'

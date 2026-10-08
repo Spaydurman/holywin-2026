@@ -1,7 +1,7 @@
 import { motion } from 'motion/react'
 import { Cross, Sparkles, Sprout } from 'lucide-react'
 import { useReveal } from '../hooks/useReveal'
-import ColorToggleImage from './ColorToggleImage'
+import ColorToggleImage from '../components/ui/ColorToggleImage'
 export default function About() {
   const reveal = useReveal()
   return (

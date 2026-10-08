@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import type { AdminRegistration } from '../../lib/adminAuth'
 import { addDays, dateKey, displayDay } from '../../lib/adminDates'
+import AdminCard from '../ui/AdminCard'
 
 type Period = '7' | '30' | 'all'
 type DayCount = { day: string; count: number }
@@ -44,7 +45,7 @@ export default function RegistrationGraph({ registrations }: { registrations: Ad
   const area = `${line} L ${x(days.length - 1).toFixed(1)} ${bottom} L ${left} ${bottom} Z`
   const tickIndexes = [...new Set([0, Math.floor((days.length - 1) / 4), Math.floor((days.length - 1) / 2), Math.floor((days.length - 1) * 3 / 4), days.length - 1])]
 
-  return <section aria-labelledby="registration-graph-title" className="rounded-2xl border border-[#e4e4e7] bg-white p-5 shadow-[0_4px_18px_rgba(24,24,27,.035)] sm:p-6">
+  return <AdminCard aria-labelledby="registration-graph-title">
     <div className="flex flex-wrap items-start justify-between gap-3">
       <div><h2 id="registration-graph-title" className="text-sm font-bold text-zinc-950">Registration trend</h2><p className="mt-1 text-xs text-zinc-400">Daily registrations · Taipei time</p></div>
       <select aria-label="Chart date range" value={period} onChange={event => setPeriod(event.target.value as Period)} className="min-h-9 rounded-lg border border-[#e4e4e7] bg-white px-3 text-xs font-medium text-zinc-600 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-zinc-950">
@@ -65,7 +66,7 @@ export default function RegistrationGraph({ registrations }: { registrations: Ad
       </div>
     </div>
     <AccessibleDailyTable days={days} caption={`Daily registrations, ${period === 'all' ? 'all time' : `last ${period} days`}, Asia/Taipei time`} />
-  </section>
+  </AdminCard>
 }
 
 export function WeeklyActivityGraph({ registrations }: { registrations: AdminRegistration[] }) {
@@ -75,11 +76,11 @@ export function WeeklyActivityGraph({ registrations }: { registrations: AdminReg
   const highest = days.reduce((max, item) => Math.max(max, item.count), 1)
   const mostActive = days.reduce((best, item) => item.count >= best.count ? item : best, days[0])
 
-  return <section aria-labelledby="activity-title" className="rounded-2xl border border-[#e4e4e7] bg-white p-5 shadow-[0_4px_18px_rgba(24,24,27,.035)] sm:p-6">
+  return <AdminCard aria-labelledby="activity-title">
     <div><h2 id="activity-title" className="text-sm font-bold text-zinc-950">Daily activity</h2><p className="mt-1 text-xs text-zinc-400">Registrations in the last 7 days</p></div>
     <div className="mt-7 flex h-36 items-end justify-between gap-2" aria-hidden="true">
       {days.map(({ day, count }) => <div key={day} className="flex h-full min-w-0 flex-1 flex-col items-center justify-end gap-2"><span className="text-[10px] font-semibold tabular-nums text-zinc-500">{count || ''}</span><div className={`w-full max-w-9 rounded-t-md ${day === mostActive.day && count ? 'bg-zinc-950' : 'bg-[#f4f4f5]'}`} style={{ height: `${Math.max(8, count / highest * 104)}px` }} /><span className="text-[10px] text-zinc-500">{new Intl.DateTimeFormat('en-US', { weekday: 'short', timeZone: 'UTC' }).format(new Date(`${day}T00:00:00Z`))}</span></div>)}
     </div>
     <AccessibleDailyTable days={days} caption="Daily registrations for the last 7 days, Asia/Taipei time" />
-  </section>
+  </AdminCard>
 }

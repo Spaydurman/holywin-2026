@@ -1,69 +1,15 @@
-import { useEffect, useState, type ReactNode } from 'react'
-import { ArrowRight, CalendarDays, CircleUserRound, Clock3, Download, Search, UserRoundCheck, UsersRound, type LucideIcon } from 'lucide-react'
-import { getRegistrations, isAdmin, signOutAdmin, type AdminRegistration } from '../lib/adminAuth'
+import { useEffect, useState } from 'react'
+import { ArrowRight, CalendarDays, Clock3, Download, UserRoundCheck, UsersRound } from 'lucide-react'
+import { getRegistrations, isAdmin, type AdminRegistration } from '../lib/adminAuth'
 import { addDays, dateKey, eventTimeZone } from '../lib/adminDates'
-import AdminSidebar, { REGISTRATIONS_PATH, type AdminPage } from './admin/AdminSidebar'
-import RegistrationGraph, { WeeklyActivityGraph } from './admin/RegistrationGraph'
-import RegistrationTable from './admin/RegistrationTable'
+import { REGISTRATIONS_PATH, type AdminPage } from '../components/admin/AdminSidebar'
+import AdminLayout from '../components/admin/AdminLayout'
+import TopInviters from '../components/admin/TopInviters'
+import RegistrationGraph, { WeeklyActivityGraph } from '../components/admin/RegistrationGraph'
+import RegistrationTable from '../components/admin/RegistrationTable'
+import AdminSummaryCard from '../components/ui/AdminSummaryCard'
 
 const LOGIN_PATH = '/holywin/2026/admin/login'
-
-function AdminLayout({ page, status, error, query, children }: { page: AdminPage; status: 'loading' | 'ready' | 'error'; error: string; query: string; children: ReactNode }) {
-  async function signOut() {
-    await signOutAdmin()
-    window.location.assign(LOGIN_PATH)
-  }
-
-  return <div className="min-h-dvh bg-[#f6f6f7] text-zinc-900">
-    <a href="#admin-main" className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-50 focus:rounded-lg focus:bg-zinc-950 focus:px-4 focus:py-2 focus:text-white">Skip to main content</a>
-    <div className="min-h-dvh bg-white md:flex">
-      <AdminSidebar page={page} onSignOut={signOut} />
-      <div className="min-w-0 flex-1">
-        <header className="flex h-16 items-center justify-between gap-4 border-b border-[#e4e4e7] bg-white px-5 sm:px-7 lg:px-8">
-          <form action={REGISTRATIONS_PATH} method="get" role="search" className="flex h-9 w-full max-w-72 items-center gap-2 rounded-full border border-[#f4f4f5] bg-[#fafafa] px-3 text-zinc-400 focus-within:border-zinc-500 focus-within:ring-2 focus-within:ring-zinc-200">
-            <Search size={15} aria-hidden="true" />
-            <input name="q" defaultValue={page === 'registrations' ? query : ''} aria-label="Search registrations" placeholder="Search registrations..." className="min-w-0 flex-1 bg-transparent text-xs text-zinc-700 outline-none placeholder:text-zinc-400" />
-          </form>
-          <div className="flex shrink-0 items-center gap-2 text-zinc-500"><span className="hidden text-xs font-medium sm:inline">Admin</span><CircleUserRound size={25} className="text-zinc-600" aria-label="Admin account" /></div>
-        </header>
-        <main id="admin-main" className="min-h-[calc(100dvh-4rem)] bg-[#f6f6f7] px-5 py-6 sm:px-7 sm:py-8 lg:px-8">
-          <div>
-            {status === 'loading' && <p role="status" className="text-sm text-zinc-500">Loading admin page…</p>}
-            {status === 'error' && <p role="alert" className="rounded-xl border border-zinc-400 bg-zinc-100 p-4 text-sm font-medium text-zinc-950">{error}</p>}
-            {status === 'ready' && children}
-          </div>
-        </main>
-      </div>
-    </div>
-  </div>
-}
-
-function SummaryCard({ label, value, note, icon: Icon }: { label: string; value: number; note: string; icon: LucideIcon }) {
-  return <section aria-label={label} className="min-w-0 rounded-2xl border border-[#e4e4e7] bg-white p-4 shadow-[0_4px_18px_rgba(24,24,27,.035)] sm:p-5">
-    <div className="flex items-start justify-between gap-2"><p className="text-xs font-semibold text-zinc-700">{label}</p><Icon size={16} className="text-zinc-950" aria-hidden="true" /></div>
-    <p className="mt-5 text-[27px] font-extrabold leading-none tabular-nums tracking-tight text-zinc-950">{value.toLocaleString()}</p>
-    <p className="mt-2 text-[11px] text-zinc-400">{note}</p>
-  </section>
-}
-
-function TopInviters({ registrations }: { registrations: AdminRegistration[] }) {
-  const counts = new Map<string, { name: string; count: number }>()
-  for (const registration of registrations) {
-    const name = registration.invited_by?.trim()
-    if (!name) continue
-    const key = name.toLocaleLowerCase()
-    const existing = counts.get(key)
-    counts.set(key, { name: existing?.name ?? name, count: (existing?.count ?? 0) + 1 })
-  }
-  const top = [...counts.values()].sort((a, b) => b.count - a.count).slice(0, 4)
-  const highest = top[0]?.count ?? 1
-
-  return <section aria-labelledby="inviters-title" className="rounded-2xl border border-[#e4e4e7] bg-white p-5 shadow-[0_4px_18px_rgba(24,24,27,.035)] sm:p-6">
-    <h2 id="inviters-title" className="text-sm font-bold text-zinc-950">Top inviters</h2>
-    <p className="mt-1 text-xs text-zinc-400">Who brought people to Holywin</p>
-    {top.length ? <div className="mt-6 space-y-5">{top.map(({ name, count }) => <div key={name}><div className="mb-2 flex items-center justify-between gap-3 text-xs"><span className="truncate font-medium text-zinc-700" title={name}>{name}</span><span className="font-semibold tabular-nums text-zinc-900">{count}</span></div><div className="h-1.5 rounded-full bg-[#e4e4e7]"><div className="h-full rounded-full bg-zinc-800" style={{ width: `${count / highest * 100}%` }} /></div></div>)}</div> : <p className="mt-6 text-sm text-zinc-500">No inviter details yet.</p>}
-  </section>
-}
 
 function downloadCsv(registrations: AdminRegistration[]) {
   const cell = (value: string) => {
@@ -129,10 +75,10 @@ function AdminPageContent({ page }: { page: AdminPage }) {
 
     {page === 'dashboard' ? <>
       <div className="mb-4 grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
-        <SummaryCard label="Total registrations" value={registrations.length} note="All recorded signups" icon={UsersRound} />
-        <SummaryCard label="Today" value={todayCount} note="Since midnight in Taipei" icon={Clock3} />
-        <SummaryCard label="Last 7 days" value={weekCount} note="Including today" icon={CalendarDays} />
-        <SummaryCard label="Invited" value={invitedCount} note="With inviter details" icon={UserRoundCheck} />
+        <AdminSummaryCard label="Total registrations" value={registrations.length} note="All recorded signups" icon={UsersRound} />
+        <AdminSummaryCard label="Today" value={todayCount} note="Since midnight in Taipei" icon={Clock3} />
+        <AdminSummaryCard label="Last 7 days" value={weekCount} note="Including today" icon={CalendarDays} />
+        <AdminSummaryCard label="Invited" value={invitedCount} note="With inviter details" icon={UserRoundCheck} />
       </div>
       <div className="grid items-start gap-4 xl:grid-cols-[minmax(0,1.65fr)_minmax(280px,1fr)]">
         <div className="min-w-0 space-y-4">

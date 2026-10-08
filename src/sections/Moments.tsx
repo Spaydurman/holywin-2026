@@ -1,6 +1,6 @@
 import { motion } from 'motion/react'
 import { useReveal } from '../hooks/useReveal'
-import ColorToggleImage from './ColorToggleImage'
+import GalleryCard from '../components/ui/GalleryCard'
 
 const photos = [
   { src: '/Holywin/H1.png', alt: 'Holywin attendees smiling together in a group photo', caption: 'Wanderland - 2019' },
@@ -10,27 +10,6 @@ const photos = [
   { src: '/Holywin/H5.jpg', alt: 'Holywin group celebrating with colorful balloons', caption: 'Inside out - 2024' },
   { src: '/Holywin/H6.jpg', alt: 'Holywin group posing with colorful game themed decorations', caption: 'Level Up - 2025' },
 ]
-
-type Photo = (typeof photos)[number]
-
-function GalleryCard({ photo, index }: { photo: Photo; index: number }) {
-  const reveal = useReveal()
-
-  return (
-    <motion.figure className="gallery-card" {...reveal}>
-      <ColorToggleImage
-        src={photo.src}
-        alt={photo.alt}
-        loading="lazy"
-        className={`h-[300px] max-[760px]:h-[380px] max-[440px]:h-[300px] ${index === 1 ? 'bg-[#111] object-contain' : 'object-cover'}`}
-      />
-      <figcaption className="gallery-caption">
-        <strong>{photo.caption}</strong>
-        <span>{String(index + 1).padStart(2, '0')} / {String(photos.length).padStart(2, '0')}</span>
-      </figcaption>
-    </motion.figure>
-  )
-}
 
 export default function Moments() {
   const reveal = useReveal()
@@ -47,7 +26,7 @@ export default function Moments() {
         </motion.div>
         <div className="gallery-grid">
           {photos.map((photo, index) => (
-            <GalleryCard photo={photo} index={index} key={photo.src} />
+            <GalleryCard photo={photo} index={index} total={photos.length} key={photo.src} />
           ))}
         </div>
       </div>

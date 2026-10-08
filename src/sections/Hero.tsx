@@ -2,9 +2,9 @@ import { useEffect, useRef, useState } from 'react'
 import { animate } from 'animejs'
 import { motion, useReducedMotion } from 'motion/react'
 import { ArrowDownRight, ArrowRight, Sprout } from 'lucide-react'
-import { Star } from './Brand'
-import ColorToggleImage from './ColorToggleImage'
-import HeroCharacters from './HeroCharacters'
+import { Star } from '../components/ui/Brand'
+import ColorToggleImage from '../components/ui/ColorToggleImage'
+import HeroCharacters from '../components/ui/HeroCharacters'
 
 const tickerMessage = 'YET TO ALL WHO DID RECEIVE HIM, TO THOSE WHO BELIEVED IN HIS NAME, HE GAVE THE RIGHT TO BECOME CHILDREN OF GOD ✳ JOHN 1:12 ✳\u00a0\u00a0'
 
