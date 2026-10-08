@@ -47,7 +47,7 @@ export default function AdminSidebar({ page, onSignOut }: { page: AdminPage; onS
 
       <div className="mx-5 mt-5 border-t border-[#e4e4e7]" />
       <p className="px-7 pt-5 text-[11px] font-semibold uppercase tracking-[.12em] text-zinc-400">Holywin 2026</p>
-      <a href="/" className="mx-3 mt-2 flex min-h-11 items-center gap-3 rounded-xl px-4 text-[13px] font-medium text-zinc-600 hover:bg-zinc-50 hover:text-zinc-950"><ArrowUpRight size={17} aria-hidden="true" />Visit website</a>
+      <a href="/" target="_blank" rel="noopener noreferrer" className="mx-3 mt-2 flex min-h-11 items-center gap-3 rounded-xl px-4 text-[13px] font-medium text-zinc-600 hover:bg-zinc-50 hover:text-zinc-950"><ArrowUpRight size={17} aria-hidden="true" />Visit website</a>
 
       <div className="mt-auto border-t border-[#e4e4e7] p-3">
         <button type="button" onClick={onSignOut} className="flex min-h-11 w-full items-center gap-3 rounded-xl px-4 text-[13px] font-medium text-zinc-600 hover:bg-zinc-50 hover:text-zinc-950 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-zinc-950"><LogOut size={17} aria-hidden="true" />Sign out</button>
