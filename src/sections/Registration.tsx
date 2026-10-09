@@ -52,7 +52,7 @@ export default function Registration() {
     <section className="register section flex min-h-dvh items-center" id="register" aria-labelledby="register-title">
       <div className="container register-grid">
         <motion.div className="register-copy" {...reveal}>
-          <span className="kicker">04 / BE PART OF IT</span>
+          <span className="kicker">05 / BE PART OF IT</span>
           <h2 id="register-title">YOUR SPOT<br />STARTS <span>HERE.</span></h2>
           <p>Come for the friends and the fun. Stay to explore the promise of <span className="font-bold">John 1:12</span> and what it means to belong to God’s family through Jesus.</p>
           <div className="register-doodle"><Sprout size={86} strokeWidth={1.5} /><span>COME HEAR<br />THE GOOD NEWS!</span></div>

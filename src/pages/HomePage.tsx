@@ -5,6 +5,7 @@ import Hero from '../sections/Hero'
 import Details from '../sections/Details'
 import PowerpuffFlight from '../sections/PowerpuffFlight'
 import About from '../sections/About'
+import Speaker from '../sections/Speaker'
 import Moments from '../sections/Moments'
 import Registration from '../sections/Registration'
 
@@ -20,6 +21,7 @@ export default function HomePage() {
       <About />
       <PixelTransition />
       <Moments />
+      <Speaker />
       <Registration />
       <div className="pointer-events-none relative h-16 overflow-x-clip bg-[#f7f5ed]" role="img" aria-label="Ice Bear walking with Panda and Grizz on his back">
         <div className="absolute -bottom-0.5 left-0 h-32 w-[82px] animate-bear-cross md:h-44 md:w-[112px] motion-reduce:left-4 motion-reduce:animate-none">
