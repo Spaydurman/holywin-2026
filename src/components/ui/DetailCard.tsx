@@ -8,8 +8,10 @@ export type EventDetail = {
   label: string
   title: readonly [string, string]
   description: string
+  address?: string
   footer: string
   variant: 'plain' | 'dark' | 'pattern'
+  action?: { href: string; label: string; external?: boolean }
 }
 
 export default function DetailCard({ detail }: { detail: EventDetail }) {
@@ -40,14 +42,49 @@ export default function DetailCard({ detail }: { detail: EventDetail }) {
       <div className={isPattern ? 'w-fit bg-[#f7f5ed] py-2 pr-3' : undefined}>
         <span className="text-xs font-extrabold tracking-[.15em]">{detail.label}</span>
         <h3 className="my-[12px_14px] font-['Archivo_Black',sans-serif] text-[46px] leading-[.98] tracking-[-.055em] min-[761px]:text-[clamp(37px,3.5vw,53px)]">
-          {detail.title[0]}<br />{detail.title[1]}
+          {detail.action ? (
+            <a
+              className="inline-block rounded-sm underline-offset-4 transition-opacity hover:opacity-70 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-current"
+              href={detail.action.href}
+              aria-label={detail.action.label}
+              target={detail.action.external ? '_blank' : undefined}
+              rel={detail.action.external ? 'noopener noreferrer' : undefined}
+            >
+              {detail.title[0]}<br />{detail.title[1]}
+            </a>
+          ) : <>{detail.title[0]}<br />{detail.title[1]}</>}
         </h3>
-        <p className="m-0 max-w-[270px] text-[15px] leading-normal">{detail.description}</p>
+        {detail.address && detail.action ? (
+          <a
+            className="inline-block rounded-sm transition-opacity hover:opacity-70 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-current"
+            href={detail.action.href}
+            aria-label={`${detail.description}, ${detail.address}. Open in Google Maps`}
+            target={detail.action.external ? '_blank' : undefined}
+            rel={detail.action.external ? 'noopener noreferrer' : undefined}
+          >
+            <span className="block max-w-[270px] text-[15px] leading-normal">{detail.description}</span>
+            <address className="mt-2 max-w-[270px] text-[15px] leading-normal not-italic">
+              {detail.address}
+            </address>
+          </a>
+        ) : (
+          <p className="m-0 max-w-[270px] text-[15px] leading-normal">{detail.description}</p>
+        )}
       </div>
 
       <div className="flex items-center justify-between border-t-2 border-current pt-[18px] text-[11px] font-extrabold tracking-[.1em]">
-        <span>{detail.footer}</span>
-        <ArrowRight size={18} aria-hidden="true" />
+        {detail.action ? (
+          <a
+            className="flex min-h-11 w-full items-center justify-between gap-3 rounded-sm transition-opacity hover:opacity-70 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-current"
+            href={detail.action.href}
+            aria-label={detail.action.label}
+            target={detail.action.external ? '_blank' : undefined}
+            rel={detail.action.external ? 'noopener noreferrer' : undefined}
+          >
+            <span>{detail.footer}</span>
+            <ArrowRight size={18} aria-hidden="true" />
+          </a>
+        ) : <><span>{detail.footer}</span><ArrowRight size={18} aria-hidden="true" /></>}
       </div>
     </motion.article>
   )

@@ -30,10 +30,10 @@ export default function Hero() {
             </h1>
             <div className="hero-rule" />
             <blockquote className="max-w-[530px]">
-              <p className="hero-lede">“Yet to all who did receive him, to those who believed in his name, he gave the right to become children of God.”</p>
+              <p className="hero-lede">“Yet to all who did receive Him, to those who believed in His name, he gave the right to become children of God.”</p>
               <cite className="mb-5 block text-xs font-extrabold not-italic uppercase tracking-[.14em]">John 1:12</cite>
             </blockquote>
-            <p className="hero-sub">Holywin is a joyful place to hear the invitation in <span className="font-bold text-[#141414]">John 1:12</span>: receive Jesus, believe in his name, and discover what it means to become a child of God.</p>
+            <p className="hero-sub">Holywin is a joyful place to hear the invitation in <span className="font-bold text-[#141414]">John 1:12</span>: receive Jesus, believe in His name, and discover what it means to become a child of God.</p>
             <div className="hero-actions"><a className="button button-dark" href="#register">Count me in <ArrowRight size={20} /></a><a className="text-link" href="#about">What is Holywin? <ArrowDownRight size={20} /></a></div>
             <div className="hero-side-note"><span className="tiny-cross">✦</span> FAITH · FUN · FRIENDSHIP</div>
           </div>

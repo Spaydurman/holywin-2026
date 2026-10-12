@@ -1,0 +1,18 @@
+BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//Holywin//Holywin 2026//EN
+CALSCALE:GREGORIAN
+METHOD:PUBLISH
+BEGIN:VEVENT
+UID:holywin-2026-10-31@holywin
+DTSTAMP:20261012T000000Z
+DTSTART;VALUE=DATE:20261031
+DTEND;VALUE=DATE:20261101
+SUMMARY:Holywin 2026
+LOCATION:The Salvation Army Pasig Corps\, 25 Sgt. Pascua St\, Pasig\, 1600 
+ Metro Manila
+DESCRIPTION:Event time to be announced. Map: https://maps.app.goo.gl/
+ XVdMim2h4eVMrw6E9
+URL:https://maps.app.goo.gl/XVdMim2h4eVMrw6E9
+END:VEVENT
+END:VCALENDAR

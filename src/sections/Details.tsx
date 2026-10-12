@@ -8,19 +8,22 @@ const eventDetails = [
     number: '01',
     icon: CalendarDays,
     label: 'WHEN IS IT?',
-    title: ['COMING', 'SOON.'],
-    description: 'Keep your eyes here. The date and time will be announced soon.',
-    footer: 'SAVE THE EXCITEMENT',
+    title: ['OCT 31', '2026.'],
+    description: 'Tap the date to add Holywin to your calendar. The event time will be shared soon.',
+    footer: 'ADD TO CALENDAR',
     variant: 'plain',
+    action: { href: '/holywin-2026.ics', label: 'Add Holywin on October 31, 2026 to your calendar' },
   },
   {
     number: '02',
     icon: MapPin,
     label: 'WHERE IS IT?',
-    title: ['STAY', 'TUNED.'],
-    description: 'We’re getting the space ready. The venue will be shared here soon.',
-    footer: 'A PLACE TO BELONG',
+    title: ['PASIG', 'CORPS.'],
+    description: 'The Salvation Army Pasig Corps',
+    address: '25 Sgt. Pascua St, Pasig, 1600 Metro Manila',
+    footer: 'OPEN IN GOOGLE MAPS',
     variant: 'dark',
+    action: { href: 'https://maps.app.goo.gl/XVdMim2h4eVMrw6E9', label: 'View the Holywin venue in Google Maps', external: true },
   },
   {
     number: '03',
@@ -48,7 +51,7 @@ export default function Details() {
             <span className="kicker">01 / MARK YOUR CALENDAR</span>
             <h2 id="details-title">THE <span>LOWDOWN.</span></h2>
           </div>
-          <p>Come together for a joyful evening centered on the promise of John 1:12. Event details are on the way!</p>
+          <p>Join us on October 31 for a joyful gathering centered on the promise of John 1:12. Save the date and find your way to the venue.</p>
         </motion.div>
 
         <div className="grid grid-cols-1 gap-5 min-[761px]:grid-cols-3 min-[761px]:gap-[22px]">
