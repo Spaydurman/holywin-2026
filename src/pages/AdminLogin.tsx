@@ -1,5 +1,6 @@
 import { useEffect, useState, type FormEvent } from 'react'
 import { ArrowLeft, ArrowRight, ShieldCheck } from 'lucide-react'
+import AdminCard from '../components/ui/AdminCard'
 import { isAdmin, signInAdmin } from '../lib/adminAuth'
 
 const DASHBOARD_PATH = '/holywin/2026/admin/dashboard'
@@ -33,30 +34,34 @@ export default function AdminLogin() {
     }
   }
 
-  return <main className="flex min-h-dvh items-center justify-center bg-zinc-100 px-5 py-12 text-zinc-950">
-    <div className="w-full max-w-md">
-      <a href="/" className="mb-8 inline-flex min-h-11 items-center gap-2 text-sm font-bold underline underline-offset-4 hover:text-zinc-600"><ArrowLeft size={18} /> Back to Holywin</a>
-      <div className="border-4 border-zinc-950 bg-white p-7 shadow-[10px_10px_0_#111] sm:p-10">
-        <div className="mb-7 flex h-12 w-12 items-center justify-center bg-zinc-950 text-white"><ShieldCheck size={26} aria-hidden="true" /></div>
-        <p className="mb-2 text-xs font-extrabold uppercase tracking-[.18em]">Holywin 2026 / Admin</p>
-        <h1 className="mb-3 font-['Archivo_Black'] text-4xl uppercase leading-none tracking-tight sm:text-5xl">Welcome back.</h1>
-        <p className="mb-8 text-base leading-relaxed text-zinc-600">Sign in to view registrations and manage your event.</p>
+  return <main id="admin-login-main" className="flex min-h-dvh items-center justify-center bg-[#f6f6f7] px-5 py-12 text-zinc-900 sm:px-8">
+    <div className="w-full max-w-[440px]">
+      <p className="text-[11px] font-medium text-zinc-400">Holywin 2026 / Admin</p>
+      <h1 className="mt-1 text-[28px] font-bold tracking-tight text-zinc-950">Welcome back</h1>
+      <p className="mt-2 text-sm leading-6 text-zinc-500">Sign in to view registrations and manage your event.</p>
+
+      <AdminCard aria-label="Admin sign in" className="mt-6 p-6 sm:p-7">
+        <div className="mb-6 flex items-center gap-3 border-b border-zinc-100 pb-5">
+          <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-zinc-100 text-zinc-800"><ShieldCheck size={20} aria-hidden="true" /></span>
+          <div><h2 className="text-sm font-semibold text-zinc-950">Admin sign in</h2><p className="mt-0.5 text-xs text-zinc-500">Enter your account details below</p></div>
+        </div>
+
         <form onSubmit={submit} className="space-y-5">
           <div>
-            <label htmlFor="admin-username" className="mb-2 block text-sm font-bold">Username</label>
-            <input id="admin-username" name="username" autoComplete="username" value={username} onChange={event => setUsername(event.target.value)} required className="h-12 w-full border-2 border-zinc-900 bg-zinc-50 px-4 text-base outline-none focus-visible:ring-4 focus-visible:ring-zinc-400" />
+            <label htmlFor="admin-username" className="mb-2 block text-xs font-semibold text-zinc-700">Username</label>
+            <input id="admin-username" name="username" autoComplete="username" value={username} onChange={event => setUsername(event.target.value)} required className="h-11 w-full rounded-lg border border-zinc-300 bg-white px-3.5 text-sm text-zinc-950 outline-none transition-colors focus-visible:border-zinc-700 focus-visible:ring-2 focus-visible:ring-zinc-200" />
           </div>
           <div>
-            <label htmlFor="admin-password" className="mb-2 block text-sm font-bold">Password</label>
-            <input id="admin-password" name="password" type="password" autoComplete="current-password" value={password} onChange={event => setPassword(event.target.value)} required className="h-12 w-full border-2 border-zinc-900 bg-zinc-50 px-4 text-base outline-none focus-visible:ring-4 focus-visible:ring-zinc-400" />
+            <label htmlFor="admin-password" className="mb-2 block text-xs font-semibold text-zinc-700">Password</label>
+            <input id="admin-password" name="password" type="password" autoComplete="current-password" value={password} onChange={event => setPassword(event.target.value)} required className="h-11 w-full rounded-lg border border-zinc-300 bg-white px-3.5 text-sm text-zinc-950 outline-none transition-colors focus-visible:border-zinc-700 focus-visible:ring-2 focus-visible:ring-zinc-200" />
           </div>
-          {error && <p role="alert" className="border-2 border-zinc-500 bg-zinc-100 p-3 text-sm font-semibold text-zinc-950">{error}</p>}
-          <button type="submit" disabled={busy} className="flex min-h-12 w-full items-center justify-center gap-3 border-2 border-zinc-950 bg-zinc-950 px-5 font-extrabold uppercase tracking-wide text-white shadow-[4px_4px_0_#888] hover:translate-x-0.5 hover:translate-y-0.5 hover:shadow-[2px_2px_0_#888] disabled:cursor-wait disabled:opacity-60">
-            {busy ? 'Signing in…' : 'Sign in'} <ArrowRight size={19} aria-hidden="true" />
+          {error && <p role="alert" className="rounded-lg border border-zinc-300 bg-zinc-100 px-3.5 py-3 text-sm text-zinc-900">{error}</p>}
+          <button type="submit" disabled={busy} className="flex min-h-11 w-full items-center justify-center gap-2 rounded-lg bg-zinc-950 px-4 text-sm font-semibold text-white transition-colors hover:bg-zinc-800 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-zinc-950 disabled:cursor-wait disabled:opacity-60">
+            {busy ? 'Signing in…' : 'Sign in'} {!busy && <ArrowRight size={16} aria-hidden="true" />}
           </button>
         </form>
-      </div>
+      </AdminCard>
+      <a href="/" className="mt-5 inline-flex min-h-9 items-center gap-2 text-xs font-medium text-zinc-600 hover:text-zinc-950 hover:underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-zinc-950"><ArrowLeft size={15} aria-hidden="true" />Back to Holywin</a>
     </div>
   </main>
 }
-

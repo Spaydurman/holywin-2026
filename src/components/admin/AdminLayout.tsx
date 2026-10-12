@@ -17,9 +17,11 @@ export default function AdminLayout({ page, status, error, query, children }: { 
       <AdminSidebar page={page} onSignOut={signOut} />
       <div className="min-w-0 flex-1">
         <header className="flex h-16 items-center justify-between gap-4 border-b border-[#e4e4e7] bg-white px-5 sm:px-7 lg:px-8">
-          <form action={REGISTRATIONS_PATH} method="get" role="search" className="flex h-9 w-full max-w-72 items-center gap-2 rounded-full border border-[#f4f4f5] bg-[#fafafa] px-3 text-zinc-400 focus-within:border-zinc-500 focus-within:ring-2 focus-within:ring-zinc-200">
-            <Search size={15} aria-hidden="true" />
-            <input name="q" defaultValue={page === 'registrations' ? query : ''} aria-label="Search registrations" placeholder="Search registrations..." className="min-w-0 flex-1 bg-transparent text-xs text-zinc-700 outline-none placeholder:text-zinc-400" />
+          <form action={REGISTRATIONS_PATH} method="get" role="search" className="w-full max-w-72">
+            <label htmlFor="admin-search" className="flex h-9 w-full cursor-text items-center gap-2 rounded-full border border-[#f4f4f5] bg-[#fafafa] px-3 text-zinc-400 focus-within:border-zinc-500 focus-within:ring-2 focus-within:ring-zinc-200">
+              <Search size={15} aria-hidden="true" />
+              <input id="admin-search" name="q" defaultValue={page === 'registrations' ? query : ''} aria-label="Search registrations" placeholder="Search registrations..." className="min-w-0 flex-1 bg-transparent text-xs text-zinc-700 focus:outline-none! placeholder:text-zinc-400" />
+            </label>
           </form>
           <div className="flex shrink-0 items-center gap-2 text-zinc-500"><span className="hidden text-xs font-medium sm:inline">Admin</span><CircleUserRound size={25} className="text-zinc-600" aria-label="Admin account" /></div>
         </header>
