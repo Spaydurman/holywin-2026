@@ -9,7 +9,8 @@ const speakers = [
   },
   {
     number: '02',
-    description: 'Another voice will join the conversation. Check back for the second speaker announcement.',
+    name: 'John Clark Velasco',
+    image: '/speakers/john-clark-velasco.png',
   },
 ] as const
 
@@ -42,14 +43,22 @@ function Watch({ rotation, raysOpacity, flashOpacity, activeSpeaker }: {
             <div className="absolute inset-[4%] bg-[repeating-linear-gradient(125deg,#a3f500_0_24px,#d6ff58_24px_42px)] [clip-path:polygon(17%_0,83%_0,55%_43%,55%_57%,83%_100%,17%_100%,45%_57%,45%_43%)]" />
           </motion.div>
         ) : (
-          <motion.div key="speaker" className="absolute inset-[20%] grid place-items-center" initial={{ opacity: 0, scale: 0.78 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.78 }} transition={{ duration: 0.3 }}>
-            <div className="absolute inset-0 bg-[#15191b] [clip-path:polygon(50%_0,100%_50%,50%_100%,0_50%)]" />
-            <div className="absolute inset-[6%] bg-[#748b6b] [clip-path:polygon(50%_0,100%_50%,50%_100%,0_50%)]" />
-            <div className="absolute inset-[10%] bg-[repeating-linear-gradient(125deg,#a4f600_0_24px,#dbff58_24px_43px)] [clip-path:polygon(50%_0,100%_50%,50%_100%,0_50%)]" />
-            <div className="relative z-10 flex flex-col items-center text-[#101410]">
-              <Mic2 className="size-[clamp(40px,9vw,96px)] stroke-[3]" />
-              <span className="font-['Archivo_Black'] text-[clamp(28px,5vw,56px)] leading-none">{speakers[activeSpeaker].number}</span>
-            </div>
+          <motion.div key={`speaker-${activeSpeaker}`} className="absolute inset-[8%] grid place-items-center" initial={{ opacity: 0, scale: 0.78 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.78 }} transition={{ duration: 0.3 }}>
+            <div className="absolute inset-[14%] bg-[#15191b] [clip-path:polygon(50%_0,100%_50%,50%_100%,0_50%)]" />
+            <div className="absolute inset-[19%] bg-[#748b6b] [clip-path:polygon(50%_0,100%_50%,50%_100%,0_50%)]" />
+            {activeSpeaker === 1 ? (
+              <div className="absolute inset-[23%] overflow-hidden bg-[repeating-linear-gradient(125deg,#a4f600_0_24px,#dbff58_24px_43px)] [clip-path:polygon(50%_0,100%_50%,50%_100%,0_50%)]">
+                <img src={speakers[1].image} alt="" className="absolute inset-x-0 top-[12%] h-[84%] w-full object-contain object-top" />
+              </div>
+            ) : (
+              <>
+                <div className="absolute inset-[23%] bg-[repeating-linear-gradient(125deg,#a4f600_0_24px,#dbff58_24px_43px)] [clip-path:polygon(50%_0,100%_50%,50%_100%,0_50%)]" />
+                <div className="relative z-10 flex flex-col items-center text-[#101410]">
+                  <Mic2 className="size-[clamp(40px,9vw,96px)] stroke-[3]" />
+                  <span className="font-['Archivo_Black'] text-[clamp(28px,5vw,56px)] leading-none">{speakers[activeSpeaker].number}</span>
+                </div>
+              </>
+            )}
           </motion.div>
         )}
       </AnimatePresence>
@@ -76,8 +85,15 @@ function SpeakerCaption({ activeSpeaker }: { activeSpeaker: number | null }) {
           </>
         ) : (
           <>
-            <span className="text-[11px] font-extrabold tracking-[.2em] text-[#b7ff3c]">SPEAKER {speakers[activeSpeaker].number} / COMING SOON</span>
-            <p className="mt-2 max-w-[560px] text-sm leading-relaxed text-[#e3e8df] min-[761px]:text-base">{speakers[activeSpeaker].description}</p>
+            <span className="text-[11px] font-extrabold tracking-[.2em] text-[#b7ff3c]">SPEAKER {speakers[activeSpeaker].number}</span>
+            {activeSpeaker === 1 ? (
+              <p className="mt-2 font-['Archivo_Black'] text-[clamp(24px,4vw,42px)] uppercase leading-none text-white">{speakers[1].name}</p>
+            ) : (
+              <>
+                <p className="mt-2 text-xs font-extrabold tracking-[.14em] text-[#b7ff3c]">COMING SOON</p>
+                <p className="mt-2 max-w-[560px] text-sm leading-relaxed text-[#e3e8df] min-[761px]:text-base">{speakers[0].description}</p>
+              </>
+            )}
           </>
         )}
       </motion.div>
@@ -118,10 +134,14 @@ export default function Speaker() {
           <div className="container mt-12 grid gap-6 min-[761px]:grid-cols-2">
             {speakers.map(speaker => (
               <div key={speaker.number} className="border border-[#b7ff3c]/45 bg-[#121b12] p-7">
-                <Mic2 className="mb-6 size-12 text-[#b7ff3c]" aria-hidden="true" />
-                <h3 className="font-['Archivo_Black'] text-2xl">SPEAKER {speaker.number}</h3>
-                <p className="mt-2 text-sm font-extrabold tracking-[.14em] text-[#b7ff3c]">COMING SOON</p>
-                <p className="mt-4 leading-relaxed text-[#e3e8df]">{speaker.description}</p>
+                {'image' in speaker ? (
+                  <img src={speaker.image} alt={speaker.name} className="mx-auto mb-6 h-56 w-full object-contain" />
+                ) : (
+                  <Mic2 className="mb-6 size-12 text-[#b7ff3c]" aria-hidden="true" />
+                )}
+                <p className="text-sm font-extrabold tracking-[.14em] text-[#b7ff3c]">SPEAKER {speaker.number}</p>
+                <h3 className="mt-2 font-['Archivo_Black'] text-2xl uppercase">{'name' in speaker ? speaker.name : 'COMING SOON'}</h3>
+                {'description' in speaker && <p className="mt-4 leading-relaxed text-[#e3e8df]">{speaker.description}</p>}
               </div>
             ))}
           </div>
