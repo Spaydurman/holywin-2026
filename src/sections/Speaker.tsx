@@ -5,11 +5,11 @@ import { ArrowDown, Mic2 } from 'lucide-react'
 const speakers = [
   {
     number: '01',
-    description: 'The first voice of the night is on the way. Their story and introduction will be shared here soon.',
+    name: 'Jigs Almazan',
   },
   {
     number: '02',
-    name: 'John Clark Velasco',
+    name: 'Clark Velasco',
     image: '/speakers/john-clark-velasco.png',
   },
 ] as const
@@ -46,9 +46,9 @@ function Watch({ rotation, raysOpacity, flashOpacity, activeSpeaker }: {
           <motion.div key={`speaker-${activeSpeaker}`} className="absolute inset-[8%] grid place-items-center" initial={{ opacity: 0, scale: 0.78 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.78 }} transition={{ duration: 0.3 }}>
             <div className="absolute inset-[14%] bg-[#15191b] [clip-path:polygon(50%_0,100%_50%,50%_100%,0_50%)]" />
             <div className="absolute inset-[19%] bg-[#748b6b] [clip-path:polygon(50%_0,100%_50%,50%_100%,0_50%)]" />
-            {activeSpeaker === 1 ? (
+            {'image' in speakers[activeSpeaker] ? (
               <div className="absolute inset-[23%] overflow-hidden bg-[repeating-linear-gradient(125deg,#a4f600_0_24px,#dbff58_24px_43px)] [clip-path:polygon(50%_0,100%_50%,50%_100%,0_50%)]">
-                <img src={speakers[1].image} alt="" className="absolute inset-x-0 top-[12%] h-[84%] w-full object-contain object-top" />
+                <img src={speakers[activeSpeaker].image} alt="" className="absolute inset-x-0 top-[12%] h-[84%] w-full object-contain object-top" />
               </div>
             ) : (
               <>
@@ -86,14 +86,7 @@ function SpeakerCaption({ activeSpeaker }: { activeSpeaker: number | null }) {
         ) : (
           <>
             <span className="text-[11px] font-extrabold tracking-[.2em] text-[#b7ff3c]">SPEAKER {speakers[activeSpeaker].number}</span>
-            {activeSpeaker === 1 ? (
-              <p className="mt-2 font-['Archivo_Black'] text-[clamp(24px,4vw,42px)] uppercase leading-none text-white">{speakers[1].name}</p>
-            ) : (
-              <>
-                <p className="mt-2 text-xs font-extrabold tracking-[.14em] text-[#b7ff3c]">COMING SOON</p>
-                <p className="mt-2 max-w-[560px] text-sm leading-relaxed text-[#e3e8df] min-[761px]:text-base">{speakers[0].description}</p>
-              </>
-            )}
+            <p className="mt-2 font-['Archivo_Black'] text-[clamp(24px,4vw,42px)] uppercase leading-none text-white">{speakers[activeSpeaker].name}</p>
           </>
         )}
       </motion.div>
@@ -140,8 +133,7 @@ export default function Speaker() {
                   <Mic2 className="mb-6 size-12 text-[#b7ff3c]" aria-hidden="true" />
                 )}
                 <p className="text-sm font-extrabold tracking-[.14em] text-[#b7ff3c]">SPEAKER {speaker.number}</p>
-                <h3 className="mt-2 font-['Archivo_Black'] text-2xl uppercase">{'name' in speaker ? speaker.name : 'COMING SOON'}</h3>
-                {'description' in speaker && <p className="mt-4 leading-relaxed text-[#e3e8df]">{speaker.description}</p>}
+                <h3 className="mt-2 font-['Archivo_Black'] text-2xl uppercase">{speaker.name}</h3>
               </div>
             ))}
           </div>
