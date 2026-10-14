@@ -1,11 +1,12 @@
 import { useRef, useState } from 'react'
 import { AnimatePresence, motion, useMotionValueEvent, useReducedMotion, useScroll, useTransform, type MotionValue } from 'motion/react'
-import { ArrowDown, Mic2 } from 'lucide-react'
+import { ArrowDown } from 'lucide-react'
 
 const speakers = [
   {
     number: '01',
     name: 'Jigs Almazan',
+    image: '/speakers/jigs-almazan.png',
   },
   {
     number: '02',
@@ -46,19 +47,14 @@ function Watch({ rotation, raysOpacity, flashOpacity, activeSpeaker }: {
           <motion.div key={`speaker-${activeSpeaker}`} className="absolute inset-[8%] grid place-items-center" initial={{ opacity: 0, scale: 0.78 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.78 }} transition={{ duration: 0.3 }}>
             <div className="absolute inset-[14%] bg-[#15191b] [clip-path:polygon(50%_0,100%_50%,50%_100%,0_50%)]" />
             <div className="absolute inset-[19%] bg-[#748b6b] [clip-path:polygon(50%_0,100%_50%,50%_100%,0_50%)]" />
-            {'image' in speakers[activeSpeaker] ? (
-              <div className="absolute inset-[23%] overflow-hidden bg-[repeating-linear-gradient(125deg,#a4f600_0_24px,#dbff58_24px_43px)] [clip-path:polygon(50%_0,100%_50%,50%_100%,0_50%)]">
-                <img src={speakers[activeSpeaker].image} alt="" className="absolute inset-x-0 top-[12%] h-[84%] w-full object-contain object-top" />
-              </div>
-            ) : (
-              <>
-                <div className="absolute inset-[23%] bg-[repeating-linear-gradient(125deg,#a4f600_0_24px,#dbff58_24px_43px)] [clip-path:polygon(50%_0,100%_50%,50%_100%,0_50%)]" />
-                <div className="relative z-10 flex flex-col items-center text-[#101410]">
-                  <Mic2 className="size-[clamp(40px,9vw,96px)] stroke-[3]" />
-                  <span className="font-['Archivo_Black'] text-[clamp(28px,5vw,56px)] leading-none">{speakers[activeSpeaker].number}</span>
-                </div>
-              </>
-            )}
+            <div className="absolute inset-[23%] overflow-hidden bg-[repeating-linear-gradient(125deg,#a4f600_0_24px,#dbff58_24px_43px)] [clip-path:polygon(50%_0,100%_50%,50%_100%,0_50%)]">
+              {activeSpeaker === 1 && <div className="absolute inset-x-0 bottom-0 h-[24%] bg-gradient-to-b from-transparent to-[#15191b]" />}
+              <img
+                src={speakers[activeSpeaker].image}
+                alt=""
+                className={`absolute left-1/2 w-auto -translate-x-1/2 ${activeSpeaker === 0 ? 'top-[7%] h-[250%] max-w-none!' : 'top-[2%] h-[125%]'}`}
+              />
+            </div>
           </motion.div>
         )}
       </AnimatePresence>
@@ -127,11 +123,7 @@ export default function Speaker() {
           <div className="container mt-12 grid gap-6 min-[761px]:grid-cols-2">
             {speakers.map(speaker => (
               <div key={speaker.number} className="border border-[#b7ff3c]/45 bg-[#121b12] p-7">
-                {'image' in speaker ? (
-                  <img src={speaker.image} alt={speaker.name} className="mx-auto mb-6 h-56 w-full object-contain" />
-                ) : (
-                  <Mic2 className="mb-6 size-12 text-[#b7ff3c]" aria-hidden="true" />
-                )}
+                <img src={speaker.image} alt={speaker.name} className="mx-auto mb-6 h-56 w-full object-contain" />
                 <p className="text-sm font-extrabold tracking-[.14em] text-[#b7ff3c]">SPEAKER {speaker.number}</p>
                 <h3 className="mt-2 font-['Archivo_Black'] text-2xl uppercase">{speaker.name}</h3>
               </div>
