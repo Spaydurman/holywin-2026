@@ -5,13 +5,13 @@ import { ArrowDown } from 'lucide-react'
 const speakers = [
   {
     number: '01',
-    name: 'Jigs Almazan',
-    image: '/speakers/jigs-almazan.png',
+    name: 'Clark Velasco',
+    image: '/speakers/john-clark-velasco.png',
   },
   {
     number: '02',
-    name: 'Clark Velasco',
-    image: '/speakers/john-clark-velasco.png',
+    name: 'Jigs Almazan',
+    image: '/speakers/jigs-almazan.png',
   },
 ] as const
 
@@ -48,11 +48,11 @@ function Watch({ rotation, raysOpacity, flashOpacity, activeSpeaker }: {
             <div className="absolute inset-[14%] bg-[#15191b] [clip-path:polygon(50%_0,100%_50%,50%_100%,0_50%)]" />
             <div className="absolute inset-[19%] bg-[#748b6b] [clip-path:polygon(50%_0,100%_50%,50%_100%,0_50%)]" />
             <div className="absolute inset-[23%] overflow-hidden bg-[repeating-linear-gradient(125deg,#a4f600_0_24px,#dbff58_24px_43px)] [clip-path:polygon(50%_0,100%_50%,50%_100%,0_50%)]">
-              {activeSpeaker === 1 && <div className="absolute inset-x-0 bottom-0 h-[24%] bg-gradient-to-b from-transparent to-[#15191b]" />}
+              {activeSpeaker === 0 && <div className="absolute inset-x-0 bottom-0 h-[24%] bg-gradient-to-b from-transparent to-[#15191b]" />}
               <img
                 src={speakers[activeSpeaker].image}
                 alt=""
-                className={`absolute left-1/2 w-auto -translate-x-1/2 ${activeSpeaker === 0 ? 'top-[7%] h-[250%] max-w-none!' : 'top-[2%] h-[125%]'}`}
+                className={`absolute left-1/2 w-auto -translate-x-1/2 ${activeSpeaker === 1 ? 'top-[7%] h-[250%] max-w-none!' : 'top-[2%] h-[125%]'}`}
               />
             </div>
           </motion.div>
