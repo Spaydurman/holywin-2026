@@ -68,11 +68,11 @@ export default function PowerpuffFlight() {
   return (
     <section
       ref={sectionRef}
-      className="relative h-[185dvh] overflow-clip bg-[#eae8df] motion-reduce:h-[340px]"
+      className="relative h-[185dvh] overflow-clip bg-[linear-gradient(to_bottom,#eae8df_0%,#eae8df_65%,#f7f5ed_100%)] motion-reduce:h-[340px]"
       role="img"
       aria-label="Bubbles, Blossom, and Buttercup fly together from left to right, leaving blue, pink, and green trails before the next section."
     >
-      <div className="sticky top-0 h-dvh overflow-hidden bg-[#eae8df] motion-reduce:relative motion-reduce:h-[340px]">
+      <div className="sticky top-0 h-dvh overflow-hidden motion-reduce:relative motion-reduce:h-[340px]">
         <motion.div
           className="pointer-events-none absolute top-1/2 left-0 h-[180px] aspect-[52/64] -translate-y-1/2 min-[761px]:h-[240px]"
           style={{ x: reducedMotion ? '35vw' : x, y: reducedMotion ? 0 : bob }}
