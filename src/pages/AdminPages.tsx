@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { ArrowRight, CalendarDays, Clock3, Download, UserRoundCheck, UsersRound } from 'lucide-react'
+import { ArrowRight, CalendarDays, Clock3, Download, Search, UserRoundCheck, UsersRound, X } from 'lucide-react'
 import { getRegistrations, isAdmin, setRegistrationAttendance, type AdminRegistration } from '../lib/adminAuth'
 import { addDays, dateKey, eventTimeZone } from '../lib/adminDates'
 import { REGISTRATIONS_PATH, type AdminPage } from '../components/admin/AdminSidebar'
@@ -35,7 +35,16 @@ function AdminPageContent({ page }: { page: AdminPage }) {
   const [error, setError] = useState('')
   const [pendingAttendanceIds, setPendingAttendanceIds] = useState<Set<string>>(new Set())
   const [attendanceErrors, setAttendanceErrors] = useState<Record<string, string>>({})
-  const query = new URLSearchParams(window.location.search).get('q')?.trim() ?? ''
+  const [search, setSearch] = useState(() => new URLSearchParams(window.location.search).get('q') ?? '')
+  const query = search.trim()
+
+  function updateSearch(value: string) {
+    setSearch(value)
+    const url = new URL(window.location.href)
+    if (value.trim()) url.searchParams.set('q', value.trim())
+    else url.searchParams.delete('q')
+    window.history.replaceState(null, '', url)
+  }
 
   async function changeAttendance(row: AdminRegistration) {
     if (pendingAttendanceIds.has(row.id)) return
@@ -76,11 +85,11 @@ function AdminPageContent({ page }: { page: AdminPage }) {
   const weekCount = registrations.filter(row => dateKey(row.created_at) >= weekStart).length
   const invitedCount = registrations.filter(row => row.invited_by?.trim()).length
   const filtered = page === 'registrations' && query
-    ? registrations.filter(row => [row.full_name, row.email, row.invited_by ?? ''].some(value => value.toLocaleLowerCase().includes(query.toLocaleLowerCase())))
+    ? registrations.filter(row => [row.full_name, row.email, row.invited_by ?? '', new Date(row.created_at).toLocaleString('en-US', { timeZone: eventTimeZone, dateStyle: 'medium', timeStyle: 'short' })].some(value => value.toLocaleLowerCase().includes(query.toLocaleLowerCase())))
     : registrations
   const displayDate = new Date().toLocaleDateString('en-US', { timeZone: eventTimeZone, month: 'short', day: 'numeric', year: 'numeric' })
 
-  return <AdminLayout page={page} status={status} error={error} query={query}>
+  return <AdminLayout page={page} status={status} error={error}>
     <div className="mb-5 flex flex-wrap items-center justify-between gap-4">
       <div><p className="text-[11px] font-medium text-zinc-400">Holywin 2026 / Admin</p><h1 className="mt-1 text-2xl font-bold tracking-tight text-zinc-950 sm:text-[28px]">{page === 'dashboard' ? 'Dashboard' : 'Registrations'}</h1></div>
       <div className="flex flex-wrap items-center gap-2">
@@ -107,8 +116,16 @@ function AdminPageContent({ page }: { page: AdminPage }) {
         <div className="min-w-0 space-y-4"><WeeklyActivityGraph registrations={registrations} /><TopInviters registrations={registrations} /></div>
       </div>
     </> : <section aria-label="All registrations">
-      <p className="mb-4 text-xs text-zinc-500">{query ? `${filtered.length} match${filtered.length === 1 ? '' : 'es'} for “${query}”` : `${registrations.length} total registration${registrations.length === 1 ? '' : 's'}`}</p>
-      {filtered.length ? <RegistrationTable registrations={filtered} caption="All Holywin registrations" onAttendanceChange={changeAttendance} pendingAttendanceIds={pendingAttendanceIds} attendanceErrors={attendanceErrors} /> : <p className="rounded-2xl border border-[#e4e4e7] bg-white p-6 text-sm text-zinc-500">{query ? 'No matching registrations.' : 'No registrations yet.'}</p>}
+      <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+        <p role="status" className="text-xs text-zinc-500">{query ? `${filtered.length} of ${registrations.length} registration${registrations.length === 1 ? '' : 's'}` : `${registrations.length} total registration${registrations.length === 1 ? '' : 's'}`}</p>
+        <div role="search" className="relative w-full sm:max-w-72">
+          <label htmlFor="registration-search" className="sr-only">Search registrations table</label>
+          <Search size={15} aria-hidden="true" className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-zinc-500" />
+          <input id="registration-search" type="text" inputMode="search" autoComplete="off" value={search} onChange={event => updateSearch(event.target.value)} placeholder="Search registrations..." className="h-9 w-full rounded-lg border border-zinc-200 bg-white py-2 pl-9 pr-9 text-xs text-zinc-900 shadow-sm outline-none placeholder:text-zinc-500 focus:border-zinc-500 focus:ring-2 focus:ring-zinc-200" />
+          {search && <button type="button" onClick={() => updateSearch('')} aria-label="Clear search" className="absolute right-2 top-1/2 grid h-7 w-7 -translate-y-1/2 place-items-center rounded-md text-zinc-500 hover:bg-zinc-100 hover:text-zinc-950 focus-visible:outline-2 focus-visible:outline-zinc-950"><X size={14} aria-hidden="true" /></button>}
+        </div>
+      </div>
+      {filtered.length ? <RegistrationTable registrations={filtered} caption="All Holywin registrations" onAttendanceChange={changeAttendance} pendingAttendanceIds={pendingAttendanceIds} attendanceErrors={attendanceErrors} /> : <div className="rounded-2xl border border-[#e4e4e7] bg-white p-6 text-sm text-zinc-500">{query ? <>No matching registrations. <button type="button" onClick={() => updateSearch('')} className="font-semibold text-zinc-950 underline underline-offset-2 focus-visible:outline-2 focus-visible:outline-zinc-950">Clear search</button></> : 'No registrations yet.'}</div>}
     </section>}
   </AdminLayout>
 }
