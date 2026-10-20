@@ -10,11 +10,15 @@ try {
 
 const url = process.env.VITE_SUPABASE_URL?.replace(/\/$/, '')
 const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY
-const password = process.env.HOLYWIN_ADMIN_PASSWORD || 'TSA_Holywin2026'
+const password = process.env.HOLYWIN_ADMIN_PASSWORD
 const email = 'admin@holywin.local'
 
 if (!url || !serviceKey) {
   console.error(`Set ${!url ? 'VITE_SUPABASE_URL' : 'SUPABASE_SERVICE_ROLE_KEY'} in .env before running this script.`)
+  process.exit(1)
+}
+if (!password || password.length < 16) {
+  console.error('Set HOLYWIN_ADMIN_PASSWORD to a unique password of at least 16 characters before provisioning the admin.')
   process.exit(1)
 }
 

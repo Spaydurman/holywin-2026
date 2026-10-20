@@ -31,6 +31,7 @@ function downloadCsv(registrations: AdminRegistration[]) {
 
 function AdminPageContent({ page }: { page: AdminPage }) {
   const [status, setStatus] = useState<'loading' | 'ready' | 'error'>('loading')
+  const [authorized, setAuthorized] = useState(false)
   const [registrations, setRegistrations] = useState<AdminRegistration[]>([])
   const [error, setError] = useState('')
   const [search, setSearch] = useState(() => new URLSearchParams(window.location.search).get('q') ?? '')
@@ -45,16 +46,23 @@ function AdminPageContent({ page }: { page: AdminPage }) {
   }
 
   useEffect(() => {
-    document.title = `${page === 'dashboard' ? 'Dashboard' : 'Registrations'} — Holywin Admin`
+    document.title = 'Checking access — Holywin'
     let active = true
     async function load() {
       try {
-        if (!(await isAdmin())) {
+        const admin = await isAdmin()
+        if (!active) return
+        if (!admin) {
           window.location.replace(LOGIN_PATH)
           return
         }
         const rows = await getRegistrations()
-        if (active) { setRegistrations(rows); setStatus('ready') }
+        if (active) {
+          setRegistrations(rows)
+          setAuthorized(true)
+          setStatus('ready')
+          document.title = `${page === 'dashboard' ? 'Dashboard' : 'Registrations'} — Holywin Admin`
+        }
       } catch (cause) {
         if (active) { setError(cause instanceof Error ? cause.message : 'Could not load the admin page.'); setStatus('error') }
       }
@@ -72,6 +80,10 @@ function AdminPageContent({ page }: { page: AdminPage }) {
     ? registrations.filter(row => [row.full_name, row.email, row.invited_by ?? '', new Date(row.created_at).toLocaleString('en-US', { timeZone: eventTimeZone, dateStyle: 'medium', timeStyle: 'short' })].some(value => value.toLocaleLowerCase().includes(query.toLocaleLowerCase())))
     : registrations
   const displayDate = new Date().toLocaleDateString('en-US', { timeZone: eventTimeZone, month: 'short', day: 'numeric', year: 'numeric' })
+
+  if (!authorized) return <main className="grid min-h-dvh place-items-center bg-[#f6f6f7] px-5 text-sm text-zinc-600">
+    {status === 'error' ? <div role="alert" className="text-center"><p>Could not verify access. Please try signing in again.</p><a href={LOGIN_PATH} className="mt-3 inline-block font-semibold text-zinc-950 underline underline-offset-4 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-zinc-950">Go to login</a></div> : <p role="status">Checking access…</p>}
+  </main>
 
   return <AdminLayout page={page} status={status} error={error}>
     <div className="mb-5 flex flex-wrap items-center justify-between gap-4">
