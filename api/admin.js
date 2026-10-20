@@ -111,13 +111,48 @@ export async function GET(request) {
     const cookie = sessionCookie(session)
     if (action === 'session') return json({ admin: true }, 200, cookie)
 
-    const response = await supabase(`/rest/v1/registrations?select=id,full_name,email,invited_by,created_at&order=created_at.desc&offset=${offset}&limit=${PAGE_SIZE}`, {
+    const response = await supabase(`/rest/v1/registrations?select=id,full_name,email,invited_by,created_at,is_attended&order=created_at.desc&offset=${offset}&limit=${PAGE_SIZE}`, {
       headers: { Authorization: `Bearer ${session.access_token}` },
     })
     if (!response.ok) throw new Error('Could not load registrations.')
     return json({ registrations: await response.json() }, 200, cookie)
   } catch {
     return json({ error: 'Admin service is temporarily unavailable.' }, 502)
+  }
+}
+
+export async function PATCH(request) {
+  if (new URL(request.url).searchParams.get('action') !== 'attendance') return json({ error: 'Not found.' }, 404)
+  if (!sameOrigin(request)) return json({ error: 'Invalid request origin.' }, 403)
+
+  let details
+  try {
+    details = await request.json()
+  } catch {
+    return json({ error: 'Invalid request.' }, 400)
+  }
+  if (!details || typeof details.id !== 'string' || !/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(details.id) ||
+      typeof details.isAttended !== 'boolean') return json({ error: 'Invalid attendance details.' }, 400)
+
+  try {
+    const session = await authenticatedSession(request)
+    if (!session) return json({ error: 'Your session has expired. Please sign in again.' }, 401, clearCookie())
+    const response = await supabase(`/rest/v1/registrations?id=eq.${encodeURIComponent(details.id)}&select=id,is_attended`, {
+      method: 'PATCH',
+      headers: {
+        Authorization: `Bearer ${session.access_token}`,
+        'Content-Type': 'application/json',
+        Prefer: 'return=representation',
+      },
+      body: JSON.stringify({ is_attended: details.isAttended }),
+    })
+    if (!response.ok) throw new Error('Could not update attendance.')
+    const updated = await response.json()
+    if (!Array.isArray(updated) || updated.length !== 1 || updated[0].id !== details.id ||
+        typeof updated[0].is_attended !== 'boolean') return json({ error: 'Registration was not found.' }, 404)
+    return json({ isAttended: updated[0].is_attended }, 200, sessionCookie(session))
+  } catch {
+    return json({ error: 'Could not update attendance. Please try again.' }, 502)
   }
 }
 

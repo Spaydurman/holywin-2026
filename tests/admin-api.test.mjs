@@ -2,7 +2,9 @@ import assert from 'node:assert/strict'
 import { Readable } from 'node:stream'
 import { after, before, test } from 'node:test'
 import { createServer } from 'vite'
-import { GET, POST } from '../api/admin.js'
+import { GET, PATCH, POST } from '../api/admin.js'
+
+const registrationId = '11111111-1111-4111-8111-111111111111'
 
 const originalFetch = globalThis.fetch
 const originalUrl = process.env.VITE_SUPABASE_URL
@@ -24,7 +26,7 @@ after(() => {
 function request(action, { method = 'GET', cookie, body, origin = 'https://holywin.example' } = {}) {
   const headers = {}
   if (cookie) headers.cookie = cookie
-  if (method === 'POST') headers.origin = origin
+  if (method !== 'GET') headers.origin = origin
   if (body) headers['content-type'] = 'application/json'
   return new Request(`https://holywin.example/api/admin?action=${action}`, {
     method, headers, body: body ? JSON.stringify(body) : undefined,
@@ -42,7 +44,10 @@ function authFetch({ admin = true, calls }) {
     }
     if (String(url).endsWith('/auth/v1/user')) return Response.json({ id: 'admin-id' })
     if (String(url).includes('/admin_users?')) return Response.json(admin ? [{ user_id: 'admin-id' }] : [])
-    if (String(url).includes('/registrations?')) return Response.json([{ id: 'registration-1', email: 'guest@example.com' }])
+    if (String(url).includes('/registrations?') && options.method === 'PATCH') {
+      return Response.json([{ id: registrationId, is_attended: true }])
+    }
+    if (String(url).includes('/registrations?')) return Response.json([{ id: registrationId, email: 'guest@example.com', is_attended: false }])
     if (String(url).endsWith('/auth/v1/logout')) return Response.json({})
     throw new Error(`Unexpected Supabase call: ${url}`)
   }
@@ -63,7 +68,7 @@ test('login stores tokens only in a secure HttpOnly cookie and serves authorized
   const session = await GET(request('session', { cookie }))
   assert.deepEqual(await session.json(), { admin: true })
   const registrations = await GET(request('registrations&offset=0', { cookie }))
-  assert.deepEqual(await registrations.json(), { registrations: [{ id: 'registration-1', email: 'guest@example.com' }] })
+  assert.deepEqual(await registrations.json(), { registrations: [{ id: registrationId, email: 'guest@example.com', is_attended: false }] })
   assert.ok(calls.some(call => call.url.includes('/registrations?') && call.options.headers.Authorization === 'Bearer access-secret'))
 
   const logout = await POST(request('logout', { method: 'POST', cookie }))
@@ -95,6 +100,22 @@ test('non-admins, missing sessions, and cross-origin login cannot access registr
   const crossOrigin = await POST(request('login', { method: 'POST', origin: 'https://attacker.example', body: { username: 'Holywin', password: 'test-password' } }))
   assert.equal(crossOrigin.status, 403)
   assert.equal(calls.filter(call => call.url.includes('grant_type=password')).length, 1)
+})
+
+test('attendance updates require an admin cookie and same-origin request', async () => {
+  const calls = []
+  authFetch({ calls })
+  const login = await POST(request('login', { method: 'POST', body: { username: 'Holywin', password: 'test-password' } }))
+  const cookie = login.headers.get('set-cookie').split(';')[0]
+  const body = { id: registrationId, isAttended: true }
+
+  const unauthorized = await PATCH(request('attendance', { method: 'PATCH', body }))
+  assert.equal(unauthorized.status, 401)
+  const crossOrigin = await PATCH(request('attendance', { method: 'PATCH', cookie, body, origin: 'https://attacker.example' }))
+  assert.equal(crossOrigin.status, 403)
+  const updated = await PATCH(request('attendance', { method: 'PATCH', cookie, body }))
+  assert.deepEqual(await updated.json(), { isAttended: true })
+  assert.ok(calls.some(call => call.url.includes('/registrations?') && call.options.method === 'PATCH' && call.options.headers.Authorization === 'Bearer access-secret'))
 })
 
 test('Vite serves the admin API during local development', async () => {

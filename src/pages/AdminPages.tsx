@@ -62,7 +62,6 @@ function AdminPageContent({ page }: { page: AdminPage }) {
   }
 
   useEffect(() => {
-    document.title = 'Checking access — Holywin'
     let active = true
     async function load() {
       try {
@@ -72,12 +71,12 @@ function AdminPageContent({ page }: { page: AdminPage }) {
           window.location.replace(LOGIN_PATH)
           return
         }
+        setAuthorized(true)
+        document.title = `${page === 'dashboard' ? 'Dashboard' : 'Registrations'} — Holywin Admin`
         const rows = await getRegistrations()
         if (active) {
           setRegistrations(rows)
-          setAuthorized(true)
           setStatus('ready')
-          document.title = `${page === 'dashboard' ? 'Dashboard' : 'Registrations'} — Holywin Admin`
         }
       } catch (cause) {
         if (active) { setError(cause instanceof Error ? cause.message : 'Could not load the admin page.'); setStatus('error') }
@@ -97,9 +96,9 @@ function AdminPageContent({ page }: { page: AdminPage }) {
     : registrations
   const displayDate = new Date().toLocaleDateString('en-US', { timeZone: eventTimeZone, month: 'short', day: 'numeric', year: 'numeric' })
 
-  if (!authorized) return <main className="grid min-h-dvh place-items-center bg-[#f6f6f7] px-5 text-sm text-zinc-600">
-    {status === 'error' ? <div role="alert" className="text-center"><p>Could not verify access. Please try signing in again.</p><a href={LOGIN_PATH} className="mt-3 inline-block font-semibold text-zinc-950 underline underline-offset-4 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-zinc-950">Go to login</a></div> : <p role="status">Checking access…</p>}
-  </main>
+  if (!authorized) return status === 'error'
+    ? <main className="grid min-h-dvh place-items-center bg-[#f6f6f7] px-5 text-sm text-zinc-600"><div role="alert" className="text-center"><p>Could not verify access. Please try signing in again.</p><a href={LOGIN_PATH} className="mt-3 inline-block font-semibold text-zinc-950 underline underline-offset-4 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-zinc-950">Go to login</a></div></main>
+    : <main aria-busy="true" className="min-h-dvh bg-[#f6f6f7]"><span role="status" className="sr-only">Verifying admin session…</span></main>
 
   return <AdminLayout page={page} status={status} error={error}>
     <div className="mb-5 flex flex-wrap items-center justify-between gap-4">

@@ -1,6 +1,7 @@
 import type { ReactNode } from 'react'
 import { CircleUserRound, Search } from 'lucide-react'
 import { signOutAdmin } from '../../lib/adminAuth'
+import AdminContentLoading from './AdminContentLoading'
 import AdminSidebar, { REGISTRATIONS_PATH, type AdminPage } from './AdminSidebar'
 
 const LOGIN_PATH = '/holywin/2026/admin/login'
@@ -27,7 +28,7 @@ export default function AdminLayout({ page, status, error, children }: { page: A
         </header>
         <main id="admin-main" className="min-h-[calc(100dvh-4rem)] bg-[#f6f6f7] px-5 py-6 sm:px-7 sm:py-8 lg:px-8">
           <div>
-            {status === 'loading' && <p role="status" className="text-sm text-zinc-500">Loading admin page…</p>}
+            {status === 'loading' && <AdminContentLoading page={page} />}
             {status === 'error' && <p role="alert" className="rounded-xl border border-zinc-400 bg-zinc-100 p-4 text-sm font-medium text-zinc-950">{error}</p>}
             {status === 'ready' && children}
           </div>
