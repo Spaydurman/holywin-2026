@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { ArrowRight, CalendarDays, Clock3, Download, Search, UserRoundCheck, UsersRound, X } from 'lucide-react'
-import { getRegistrations, isAdmin, type AdminRegistration } from '../lib/adminAuth'
+import { getRegistrations, isAdmin, setRegistrationAttendance, type AdminRegistration } from '../lib/adminAuth'
 import { addDays, dateKey, eventTimeZone } from '../lib/adminDates'
 import { REGISTRATIONS_PATH, type AdminPage } from '../components/admin/AdminSidebar'
 import AdminLayout from '../components/admin/AdminLayout'
@@ -17,8 +17,8 @@ function downloadCsv(registrations: AdminRegistration[]) {
     return `"${safe.replace(/"/g, '""')}"`
   }
   const rows = [
-    ['Name', 'Email', 'Invited by', 'Registered at'],
-    ...registrations.map(row => [row.full_name, row.email, row.invited_by ?? '', row.created_at]),
+    ['Name', 'Email', 'Invited by', 'Registered at', 'Attended'],
+    ...registrations.map(row => [row.full_name, row.email, row.invited_by ?? '', row.created_at, row.is_attended ? 'Yes' : 'No']),
   ]
   const csv = rows.map(row => row.map(cell).join(',')).join('\r\n')
   const url = URL.createObjectURL(new Blob(['\uFEFF', csv], { type: 'text/csv;charset=utf-8' }))
@@ -34,6 +34,8 @@ function AdminPageContent({ page }: { page: AdminPage }) {
   const [authorized, setAuthorized] = useState(false)
   const [registrations, setRegistrations] = useState<AdminRegistration[]>([])
   const [error, setError] = useState('')
+  const [pendingAttendanceIds, setPendingAttendanceIds] = useState<Set<string>>(new Set())
+  const [attendanceErrors, setAttendanceErrors] = useState<Record<string, string>>({})
   const [search, setSearch] = useState(() => new URLSearchParams(window.location.search).get('q') ?? '')
   const query = search.trim()
 
@@ -43,6 +45,20 @@ function AdminPageContent({ page }: { page: AdminPage }) {
     if (value.trim()) url.searchParams.set('q', value.trim())
     else url.searchParams.delete('q')
     window.history.replaceState(null, '', url)
+  }
+
+  async function changeAttendance(row: AdminRegistration) {
+    if (pendingAttendanceIds.has(row.id)) return
+    setPendingAttendanceIds(current => new Set(current).add(row.id))
+    setAttendanceErrors(current => { const next = { ...current }; delete next[row.id]; return next })
+    try {
+      const isAttended = await setRegistrationAttendance(row.id, !row.is_attended)
+      setRegistrations(current => current.map(item => item.id === row.id ? { ...item, is_attended: isAttended } : item))
+    } catch (cause) {
+      setAttendanceErrors(current => ({ ...current, [row.id]: cause instanceof Error ? cause.message : 'Could not update attendance.' }))
+    } finally {
+      setPendingAttendanceIds(current => { const next = new Set(current); next.delete(row.id); return next })
+    }
   }
 
   useEffect(() => {
@@ -106,7 +122,7 @@ function AdminPageContent({ page }: { page: AdminPage }) {
           <RegistrationGraph registrations={registrations} />
           <section aria-labelledby="recent-registrations-title">
             <div className="mb-3 flex items-center justify-between gap-3"><h2 id="recent-registrations-title" className="text-sm font-bold text-zinc-950">Recent registrations</h2><a href={REGISTRATIONS_PATH} className="inline-flex min-h-9 items-center gap-1 text-xs font-semibold text-zinc-950 hover:underline">View all <ArrowRight size={13} aria-hidden="true" /></a></div>
-            {registrations.length ? <RegistrationTable registrations={registrations.slice(0, 5)} caption="Five most recent registrations" /> : <p className="rounded-2xl border border-[#e4e4e7] bg-white p-6 text-sm text-zinc-500">No registrations yet.</p>}
+            {registrations.length ? <RegistrationTable registrations={registrations.slice(0, 5)} caption="Five most recent registrations" onAttendanceChange={changeAttendance} pendingAttendanceIds={pendingAttendanceIds} attendanceErrors={attendanceErrors} /> : <p className="rounded-2xl border border-[#e4e4e7] bg-white p-6 text-sm text-zinc-500">No registrations yet.</p>}
           </section>
         </div>
         <div className="min-w-0 space-y-4"><WeeklyActivityGraph registrations={registrations} /><TopInviters registrations={registrations} /></div>
@@ -121,7 +137,7 @@ function AdminPageContent({ page }: { page: AdminPage }) {
           {search && <button type="button" onClick={() => updateSearch('')} aria-label="Clear search" className="absolute right-2 top-1/2 grid h-7 w-7 -translate-y-1/2 place-items-center rounded-md text-zinc-500 hover:bg-zinc-100 hover:text-zinc-950 focus-visible:outline-2 focus-visible:outline-zinc-950"><X size={14} aria-hidden="true" /></button>}
         </div>
       </div>
-      {filtered.length ? <RegistrationTable registrations={filtered} caption="All Holywin registrations" /> : <div className="rounded-2xl border border-[#e4e4e7] bg-white p-6 text-sm text-zinc-500">{query ? <>No matching registrations. <button type="button" onClick={() => updateSearch('')} className="font-semibold text-zinc-950 underline underline-offset-2 focus-visible:outline-2 focus-visible:outline-zinc-950">Clear search</button></> : 'No registrations yet.'}</div>}
+      {filtered.length ? <RegistrationTable registrations={filtered} caption="All Holywin registrations" onAttendanceChange={changeAttendance} pendingAttendanceIds={pendingAttendanceIds} attendanceErrors={attendanceErrors} /> : <div className="rounded-2xl border border-[#e4e4e7] bg-white p-6 text-sm text-zinc-500">{query ? <>No matching registrations. <button type="button" onClick={() => updateSearch('')} className="font-semibold text-zinc-950 underline underline-offset-2 focus-visible:outline-2 focus-visible:outline-zinc-950">Clear search</button></> : 'No registrations yet.'}</div>}
     </section>}
   </AdminLayout>
 }

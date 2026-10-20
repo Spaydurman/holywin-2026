@@ -1,13 +1,21 @@
 import type { AdminRegistration } from '../../lib/adminAuth'
 import { eventTimeZone } from '../../lib/adminDates'
-import { UserRound } from 'lucide-react'
+import { Check, UserRound } from 'lucide-react'
 
-export default function RegistrationTable({ registrations, caption }: { registrations: AdminRegistration[]; caption: string }) {
+type Props = {
+  registrations: AdminRegistration[]
+  caption: string
+  onAttendanceChange: (row: AdminRegistration) => void
+  pendingAttendanceIds: Set<string>
+  attendanceErrors: Record<string, string>
+}
+
+export default function RegistrationTable({ registrations, caption, onAttendanceChange, pendingAttendanceIds, attendanceErrors }: Props) {
   return <div className="overflow-x-auto rounded-2xl border border-[#e4e4e7] bg-white shadow-[0_4px_18px_rgba(24,24,27,.035)]">
-    <table className="w-full min-w-[680px] border-collapse text-left text-sm">
+    <table className="w-full min-w-[800px] border-collapse text-left text-sm">
       <caption className="sr-only">{caption}</caption>
       <thead className="border-b border-[#e4e4e7] text-[11px] font-semibold uppercase tracking-[.08em] text-zinc-400">
-        <tr><th scope="col" className="px-5 py-4">Name</th><th scope="col" className="px-5 py-4">Email</th><th scope="col" className="px-5 py-4">Invited by</th><th scope="col" className="px-5 py-4">Registered</th></tr>
+        <tr><th scope="col" className="px-5 py-4">Name</th><th scope="col" className="px-5 py-4">Email</th><th scope="col" className="px-5 py-4">Invited by</th><th scope="col" className="px-5 py-4">Registered</th><th scope="col" className="px-5 py-4">Attendance</th></tr>
       </thead>
       <tbody className="divide-y divide-[#f4f4f5]">
         {registrations.map(row => <tr key={row.id} className="hover:bg-zinc-100/60">
@@ -15,6 +23,20 @@ export default function RegistrationTable({ registrations, caption }: { registra
           <td className="px-5 py-3.5"><a className="text-zinc-600 hover:text-zinc-950 hover:underline" href={`mailto:${row.email}`}>{row.email}</a></td>
           <td className="px-5 py-3.5 text-zinc-500">{row.invited_by || '—'}</td>
           <td className="whitespace-nowrap px-5 py-3.5 text-zinc-500"><time dateTime={row.created_at}>{new Date(row.created_at).toLocaleString('en-US', { timeZone: eventTimeZone, dateStyle: 'medium', timeStyle: 'short' })}</time></td>
+          <td className="px-5 py-3.5">
+            <button
+              type="button"
+              aria-label={`${row.is_attended ? 'Undo attendance for' : 'Mark attended:'} ${row.full_name}`}
+              aria-pressed={row.is_attended}
+              disabled={pendingAttendanceIds.has(row.id)}
+              onClick={() => onAttendanceChange(row)}
+              className={`inline-flex min-h-11 cursor-pointer items-center justify-center gap-1.5 whitespace-nowrap rounded-lg border px-3 text-xs font-semibold transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-zinc-950 disabled:cursor-wait disabled:opacity-60 ${row.is_attended ? 'border-zinc-950 bg-zinc-950 text-white hover:bg-zinc-800' : 'border-zinc-300 bg-white text-zinc-800 hover:bg-zinc-100'}`}
+            >
+              {row.is_attended && <Check size={14} aria-hidden="true" />}
+              {pendingAttendanceIds.has(row.id) ? 'Saving…' : row.is_attended ? 'Attended' : 'Mark attended'}
+            </button>
+            {attendanceErrors[row.id] && <p role="alert" className="mt-1 max-w-44 text-xs text-zinc-700">{attendanceErrors[row.id]}</p>}
+          </td>
         </tr>)}
       </tbody>
     </table>
