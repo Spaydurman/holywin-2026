@@ -17,8 +17,8 @@ function downloadCsv(registrations: AdminRegistration[]) {
     return `"${safe.replace(/"/g, '""')}"`
   }
   const rows = [
-    ['Name', 'Email', 'Invited by', 'Best in Costume', 'Registered at', 'Attended'],
-    ...registrations.map(row => [row.full_name, row.email, row.invited_by ?? '', row.best_in_costume ? 'Yes' : 'No', row.created_at, row.is_attended ? 'Yes' : 'No']),
+    ['Name', 'Email', 'Invited by', 'Best in Costume', 'Character', 'Registered at', 'Attended'],
+    ...registrations.map(row => [row.full_name, row.email, row.invited_by ?? '', row.best_in_costume ? 'Yes' : 'No', row.costume_character ?? '', row.created_at, row.is_attended ? 'Yes' : 'No']),
   ]
   const csv = rows.map(row => row.map(cell).join(',')).join('\r\n')
   const url = URL.createObjectURL(new Blob(['\uFEFF', csv], { type: 'text/csv;charset=utf-8' }))
@@ -92,7 +92,7 @@ function AdminPageContent({ page }: { page: AdminPage }) {
   const weekCount = registrations.filter(row => dateKey(row.created_at) >= weekStart).length
   const invitedCount = registrations.filter(row => row.invited_by?.trim()).length
   const filtered = page === 'registrations' && query
-    ? registrations.filter(row => [row.full_name, row.email, row.invited_by ?? '', row.best_in_costume ? 'Best in Costume' : '', new Date(row.created_at).toLocaleString('en-US', { timeZone: eventTimeZone, dateStyle: 'medium', timeStyle: 'short' })].some(value => value.toLocaleLowerCase().includes(query.toLocaleLowerCase())))
+    ? registrations.filter(row => [row.full_name, row.email, row.invited_by ?? '', row.best_in_costume ? 'Best in Costume' : '', row.costume_character ?? '', new Date(row.created_at).toLocaleString('en-US', { timeZone: eventTimeZone, dateStyle: 'medium', timeStyle: 'short' })].some(value => value.toLocaleLowerCase().includes(query.toLocaleLowerCase())))
     : registrations
   const displayDate = new Date().toLocaleDateString('en-US', { timeZone: eventTimeZone, month: 'short', day: 'numeric', year: 'numeric' })
 

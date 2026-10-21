@@ -3,6 +3,7 @@ type RegistrationDetails = {
   email: string
   invited_by: string | null
   best_in_costume: boolean
+  costume_character: string | null
 }
 
 export async function saveRegistration(details: RegistrationDetails): Promise<void> {

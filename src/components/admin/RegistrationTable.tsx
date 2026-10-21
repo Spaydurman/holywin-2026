@@ -22,7 +22,7 @@ export default function RegistrationTable({ registrations, caption, onAttendance
           <td className="px-5 py-3.5"><span className="flex items-center gap-3"><span className="grid h-8 w-8 shrink-0 place-items-center rounded-lg bg-[#f4f4f5] text-zinc-950"><UserRound size={15} aria-hidden="true" /></span><span className="font-semibold text-zinc-800">{row.full_name}</span></span></td>
           <td className="px-5 py-3.5"><a className="text-zinc-600 hover:text-zinc-950 hover:underline" href={`mailto:${row.email}`}>{row.email}</a></td>
           <td className="px-5 py-3.5 text-zinc-500">{row.invited_by || '—'}</td>
-          <td className="px-5 py-3.5 text-zinc-600">{row.best_in_costume ? <span className="inline-flex rounded-full border border-zinc-950 bg-zinc-950 px-2.5 py-1 text-xs font-semibold text-white">Entered</span> : '—'}</td>
+          <td className="px-5 py-3.5 text-zinc-600">{row.best_in_costume ? <span className="flex flex-col items-start gap-1"><span className="inline-flex rounded-full border border-zinc-950 bg-zinc-950 px-2.5 py-1 text-xs font-semibold text-white">Entered</span>{row.costume_character && <span className="max-w-40 break-words text-xs text-zinc-600">{row.costume_character}</span>}</span> : '—'}</td>
           <td className="whitespace-nowrap px-5 py-3.5 text-zinc-500"><time dateTime={row.created_at}>{new Date(row.created_at).toLocaleString('en-US', { timeZone: eventTimeZone, dateStyle: 'medium', timeStyle: 'short' })}</time></td>
           <td className="px-5 py-3.5">
             <button

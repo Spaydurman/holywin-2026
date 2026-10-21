@@ -12,6 +12,8 @@ export default function Registration() {
   const [email, setEmail] = useState('')
   const [invitedBy, setInvitedBy] = useState('')
   const [bestInCostume, setBestInCostume] = useState(false)
+  const [costumeCharacter, setCostumeCharacter] = useState('')
+  const [characterError, setCharacterError] = useState('')
   const reveal = useReveal()
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
@@ -23,8 +25,13 @@ export default function Registration() {
       setError('Please enter your name.')
       return
     }
+    if (bestInCostume && !costumeCharacter.trim()) {
+      setCharacterError('Please enter the character you will portray.')
+      return
+    }
 
     setError('')
+    setCharacterError('')
     setIsSubmitting(true)
 
     try {
@@ -33,6 +40,7 @@ export default function Registration() {
         email: email.trim().toLowerCase(),
         invited_by: invitedBy.trim() || null,
         best_in_costume: bestInCostume,
+        costume_character: bestInCostume ? costumeCharacter.trim() : null,
       })
       setSubmitted(true)
     } catch {
@@ -48,6 +56,8 @@ export default function Registration() {
     setEmail('')
     setInvitedBy('')
     setBestInCostume(false)
+    setCostumeCharacter('')
+    setCharacterError('')
     setError('')
   }
 
@@ -66,7 +76,7 @@ export default function Registration() {
               <span className="success-icon"><Check size={40} strokeWidth={3} /></span>
               <span className="form-kicker">YOU'RE IN THE MIX</span>
               <h3>AWESOME,<br />{name.trim().split(' ')[0].toUpperCase()}!</h3>
-              <p>Your registration has been received. {bestInCostume ? "You're entered for Best in Costume, too!" : 'We look forward to seeing you!'}</p>
+              <p>Your registration has been received. {bestInCostume ? `You're entered for Best in Costume as ${costumeCharacter.trim()}!` : 'We look forward to seeing you!'}</p>
               <button className="button button-dark" type="button" onClick={resetForm}>Make Another Registration <ArrowRight size={19} /></button>
             </div>
           ) : (
@@ -82,10 +92,15 @@ export default function Registration() {
               <fieldset className="mb-5 border-2 border-black bg-[#f7f5ed] p-4 sm:p-5">
                 <legend className="px-2 text-xs font-extrabold uppercase tracking-[.12em]">Best in Costume</legend>
                 <label htmlFor="bestInCostume" className="flex min-h-11 cursor-pointer items-center gap-3 text-sm font-semibold leading-5 text-black">
-                  <input id="bestInCostume" name="bestInCostume" type="checkbox" checked={bestInCostume} onChange={e => setBestInCostume(e.target.checked)} className="h-5 w-5 shrink-0 cursor-pointer accent-black focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-black" />
+                  <input id="bestInCostume" name="bestInCostume" type="checkbox" checked={bestInCostume} onChange={e => { setBestInCostume(e.target.checked); if (!e.target.checked) { setCostumeCharacter(''); setCharacterError('') } }} className="h-5 w-5 shrink-0 cursor-pointer accent-black focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-black" />
                   <span>Yes, enter me in Best in Costume</span>
                 </label>
                 <p className="mt-2 pl-8 text-sm leading-5 text-neutral-700">Optional — join the costume contest as part of your Holywin registration.</p>
+                {bestInCostume && <div className="mt-4">
+                  <label className="mb-2 block text-[13px] font-extrabold uppercase tracking-[.06em]" htmlFor="costumeCharacter">Which character will you portray?</label>
+                  <input className="h-[54px] w-full rounded-none border-2 border-black bg-white px-[15px] text-base text-black placeholder:text-neutral-600 focus:outline-3 focus:outline-offset-2 focus:outline-neutral-500" id="costumeCharacter" name="costumeCharacter" value={costumeCharacter} onChange={e => { setCostumeCharacter(e.target.value); setCharacterError('') }} placeholder="Name of your character" maxLength={120} aria-invalid={Boolean(characterError)} aria-describedby={characterError ? 'costumeCharacterError' : undefined} required />
+                  {characterError && <p id="costumeCharacterError" role="alert" className="mt-2 text-sm font-semibold text-red-800">{characterError}</p>}
+                </div>}
               </fieldset>
               {error && <p role="alert" className="mb-3 border-2 border-red-700 bg-red-50 p-3 text-sm font-semibold text-red-800">{error}</p>}
               <button className="button button-dark form-submit disabled:cursor-wait disabled:opacity-60" type="submit" disabled={isSubmitting}>
