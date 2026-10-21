@@ -70,6 +70,7 @@ test('login stores tokens only in a secure HttpOnly cookie and serves authorized
   const registrations = await GET(request('registrations&offset=0', { cookie }))
   assert.deepEqual(await registrations.json(), { registrations: [{ id: registrationId, email: 'guest@example.com', is_attended: false }] })
   assert.ok(calls.some(call => call.url.includes('/registrations?') && call.options.headers.Authorization === 'Bearer access-secret'))
+  assert.ok(calls.some(call => call.url.includes('/registrations?select=') && call.url.includes('best_in_costume')))
 
   const logout = await POST(request('logout', { method: 'POST', cookie }))
   assert.deepEqual(await logout.json(), { ok: true })

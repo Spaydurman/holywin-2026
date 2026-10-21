@@ -111,7 +111,7 @@ export async function GET(request) {
     const cookie = sessionCookie(session)
     if (action === 'session') return json({ admin: true }, 200, cookie)
 
-    const response = await supabase(`/rest/v1/registrations?select=id,full_name,email,invited_by,created_at,is_attended&order=created_at.desc&offset=${offset}&limit=${PAGE_SIZE}`, {
+    const response = await supabase(`/rest/v1/registrations?select=id,full_name,email,invited_by,best_in_costume,created_at,is_attended&order=created_at.desc&offset=${offset}&limit=${PAGE_SIZE}`, {
       headers: { Authorization: `Bearer ${session.access_token}` },
     })
     if (!response.ok) throw new Error('Could not load registrations.')

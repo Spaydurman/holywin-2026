@@ -31,7 +31,7 @@ export async function signOutAdmin(): Promise<void> {
   await request('logout', { method: 'POST' })
 }
 
-export type AdminRegistration = { id: string; full_name: string; email: string; invited_by: string | null; created_at: string; is_attended: boolean }
+export type AdminRegistration = { id: string; full_name: string; email: string; invited_by: string | null; best_in_costume: boolean; created_at: string; is_attended: boolean }
 
 export async function getRegistrations(): Promise<AdminRegistration[]> {
   const registrations: AdminRegistration[] = []
