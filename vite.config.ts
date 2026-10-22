@@ -22,8 +22,8 @@ export default defineConfig(({ mode }) => ({
               headers: req.headers as HeadersInit,
               body: chunks.length ? Buffer.concat(chunks) : undefined,
             })
-            const { GET, POST, PATCH } = await import('./api/admin.js')
-            const response = req.method === 'GET' ? await GET(request) : req.method === 'POST' ? await POST(request) : req.method === 'PATCH' ? await PATCH(request) : new Response(null, { status: 405 })
+            const { GET, POST, PATCH, DELETE } = await import('./api/admin.js')
+            const response = req.method === 'GET' ? await GET(request) : req.method === 'POST' ? await POST(request) : req.method === 'PATCH' ? await PATCH(request) : req.method === 'DELETE' ? await DELETE(request) : new Response(null, { status: 405 })
             res.statusCode = response.status
             response.headers.forEach((value, key) => res.setHeader(key, value))
             res.end(Buffer.from(await response.arrayBuffer()))

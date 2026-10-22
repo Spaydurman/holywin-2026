@@ -2,7 +2,7 @@ import assert from 'node:assert/strict'
 import { Readable } from 'node:stream'
 import { after, before, test } from 'node:test'
 import { createServer } from 'vite'
-import { GET, PATCH, POST } from '../api/admin.js'
+import { DELETE, GET, PATCH, POST } from '../api/admin.js'
 
 const registrationId = '11111111-1111-4111-8111-111111111111'
 
@@ -45,8 +45,10 @@ function authFetch({ admin = true, calls }) {
     if (String(url).endsWith('/auth/v1/user')) return Response.json({ id: 'admin-id' })
     if (String(url).includes('/admin_users?')) return Response.json(admin ? [{ user_id: 'admin-id' }] : [])
     if (String(url).includes('/registrations?') && options.method === 'PATCH') {
+      if (JSON.parse(options.body).full_name) return Response.json([{ id: registrationId, ...JSON.parse(options.body), created_at: '2026-10-22T00:00:00Z', is_attended: false }])
       return Response.json([{ id: registrationId, is_attended: true }])
     }
+    if (String(url).includes('/registrations?') && options.method === 'DELETE') return Response.json([{ id: registrationId }])
     if (String(url).includes('/registrations?')) return Response.json([{ id: registrationId, email: 'guest@example.com', is_attended: false }])
     if (String(url).endsWith('/auth/v1/logout')) return Response.json({})
     throw new Error(`Unexpected Supabase call: ${url}`)
@@ -118,6 +120,32 @@ test('attendance updates require an admin cookie and same-origin request', async
   const updated = await PATCH(request('attendance', { method: 'PATCH', cookie, body }))
   assert.deepEqual(await updated.json(), { isAttended: true })
   assert.ok(calls.some(call => call.url.includes('/registrations?') && call.options.method === 'PATCH' && call.options.headers.Authorization === 'Bearer access-secret'))
+})
+
+test('editing and deleting registrations require admin access and same-origin requests', async () => {
+  const calls = []
+  authFetch({ calls })
+  const login = await POST(request('login', { method: 'POST', body: { username: 'Holywin', password: 'test-password' } }))
+  const cookie = login.headers.get('set-cookie').split(';')[0]
+  const edit = { id: registrationId, full_name: 'Edited Guest', email: 'EDITED@example.com', invited_by: null, best_in_costume: false, costume_character: null }
+
+  assert.equal((await PATCH(request('registration', { method: 'PATCH', body: edit }))).status, 401)
+  assert.equal((await PATCH(request('registration', { method: 'PATCH', cookie, body: edit, origin: 'https://attacker.example' }))).status, 403)
+  assert.equal((await PATCH(request('registration', { method: 'PATCH', cookie, body: { ...edit, email: 'invalid' } }))).status, 400)
+  const updated = await PATCH(request('registration', { method: 'PATCH', cookie, body: edit }))
+  assert.equal(updated.status, 200)
+  assert.equal((await updated.json()).registration.email, 'edited@example.com')
+  const patchCall = calls.find(call => call.url.includes('/registrations?') && call.options.method === 'PATCH' && JSON.parse(call.options.body).full_name)
+  assert.equal(patchCall.options.headers.Authorization, 'Bearer access-secret')
+  assert.equal(JSON.parse(patchCall.options.body).email, 'edited@example.com')
+
+  const deletion = { id: registrationId }
+  assert.equal((await DELETE(request('registration', { method: 'DELETE', body: deletion }))).status, 401)
+  assert.equal((await DELETE(request('registration', { method: 'DELETE', cookie, body: deletion, origin: 'https://attacker.example' }))).status, 403)
+  assert.equal((await DELETE(request('registration', { method: 'DELETE', cookie, body: { id: 'invalid' } }))).status, 400)
+  const deleted = await DELETE(request('registration', { method: 'DELETE', cookie, body: deletion }))
+  assert.deepEqual(await deleted.json(), { ok: true })
+  assert.ok(calls.some(call => call.url.includes('/registrations?') && call.options.method === 'DELETE' && call.options.headers.Authorization === 'Bearer access-secret'))
 })
 
 test('Vite serves the admin API during local development', async () => {

@@ -32,6 +32,7 @@ export async function signOutAdmin(): Promise<void> {
 }
 
 export type AdminRegistration = { id: string; full_name: string; email: string; invited_by: string | null; best_in_costume: boolean; costume_character: string | null; created_at: string; is_attended: boolean }
+export type RegistrationChanges = Pick<AdminRegistration, 'full_name' | 'email' | 'invited_by' | 'best_in_costume' | 'costume_character'>
 
 export async function getRegistrations(): Promise<AdminRegistration[]> {
   const registrations: AdminRegistration[] = []
@@ -50,4 +51,21 @@ export async function setRegistrationAttendance(id: string, isAttended: boolean)
     body: JSON.stringify({ id, isAttended }),
   })
   return result.isAttended
+}
+
+export async function updateRegistration(id: string, changes: RegistrationChanges): Promise<AdminRegistration> {
+  const result = await request<{ registration: AdminRegistration }>('registration', {
+    method: 'PATCH',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ id, ...changes }),
+  })
+  return result.registration
+}
+
+export async function deleteRegistration(id: string): Promise<void> {
+  await request('registration', {
+    method: 'DELETE',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ id }),
+  })
 }

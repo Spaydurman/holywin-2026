@@ -1,6 +1,6 @@
 import type { AdminRegistration } from '../../lib/adminAuth'
 import { eventTimeZone } from '../../lib/adminDates'
-import { Check, UserRound } from 'lucide-react'
+import { Check, Pencil, Trash2, UserRound } from 'lucide-react'
 
 type Props = {
   registrations: AdminRegistration[]
@@ -8,14 +8,16 @@ type Props = {
   onAttendanceChange: (row: AdminRegistration) => void
   pendingAttendanceIds: Set<string>
   attendanceErrors: Record<string, string>
+  onEdit: (row: AdminRegistration) => void
+  onDelete: (row: AdminRegistration) => void
 }
 
-export default function RegistrationTable({ registrations, caption, onAttendanceChange, pendingAttendanceIds, attendanceErrors }: Props) {
+export default function RegistrationTable({ registrations, caption, onAttendanceChange, pendingAttendanceIds, attendanceErrors, onEdit, onDelete }: Props) {
   return <div className="overflow-x-auto rounded-2xl border border-[#e4e4e7] bg-white shadow-[0_4px_18px_rgba(24,24,27,.035)]">
     <table className="w-full min-w-[1080px] border-collapse text-left text-sm">
       <caption className="sr-only">{caption}</caption>
       <thead className="border-b border-[#e4e4e7] text-[11px] font-semibold uppercase tracking-[.08em] text-zinc-400">
-        <tr><th scope="col" className="px-5 py-4">Name</th><th scope="col" className="px-5 py-4">Email</th><th scope="col" className="px-5 py-4">Invited by</th><th scope="col" className="px-5 py-4">Best in Costume</th><th scope="col" className="px-5 py-4">Character portrayed</th><th scope="col" className="px-5 py-4">Registered</th><th scope="col" className="px-5 py-4">Attendance</th></tr>
+        <tr><th scope="col" className="px-5 py-4">Name</th><th scope="col" className="px-5 py-4">Email</th><th scope="col" className="px-5 py-4">Invited by</th><th scope="col" className="px-5 py-4">Best in Costume</th><th scope="col" className="px-5 py-4">Character portrayed</th><th scope="col" className="px-5 py-4">Registered</th><th scope="col" className="px-5 py-4">Attendance</th><th scope="col" className="px-5 py-4">Action</th></tr>
       </thead>
       <tbody className="divide-y divide-[#f4f4f5]">
         {registrations.map(row => <tr key={row.id} className="hover:bg-zinc-100/60">
@@ -39,6 +41,10 @@ export default function RegistrationTable({ registrations, caption, onAttendance
             </button>
             {attendanceErrors[row.id] && <p role="alert" className="mt-1 max-w-44 text-xs text-zinc-700">{attendanceErrors[row.id]}</p>}
           </td>
+          <td className="px-5 py-3.5"><div className="flex items-center gap-1.5">
+            <button type="button" onClick={() => onEdit(row)} aria-label={`Edit registration for ${row.full_name}`} className="inline-flex min-h-9 items-center gap-1.5 rounded-lg border border-zinc-300 px-2.5 text-xs font-semibold text-zinc-800 hover:bg-zinc-100 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-zinc-950"><Pencil size={13} aria-hidden="true" />Edit</button>
+            <button type="button" onClick={() => onDelete(row)} aria-label={`Delete registration for ${row.full_name}`} className="inline-flex min-h-9 items-center gap-1.5 rounded-lg border border-zinc-300 px-2.5 text-xs font-semibold text-zinc-800 hover:bg-zinc-100 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-zinc-950"><Trash2 size={13} aria-hidden="true" />Delete</button>
+          </div></td>
         </tr>)}
       </tbody>
     </table>

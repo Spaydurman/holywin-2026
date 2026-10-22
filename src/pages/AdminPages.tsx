@@ -1,12 +1,13 @@
 import { useEffect, useState } from 'react'
 import { ArrowRight, CalendarDays, Clock3, Download, Search, UserRoundCheck, UsersRound, X } from 'lucide-react'
-import { getRegistrations, isAdmin, setRegistrationAttendance, type AdminRegistration } from '../lib/adminAuth'
+import { deleteRegistration, getRegistrations, isAdmin, setRegistrationAttendance, updateRegistration, type AdminRegistration, type RegistrationChanges } from '../lib/adminAuth'
 import { addDays, dateKey, eventTimeZone } from '../lib/adminDates'
 import { REGISTRATIONS_PATH, type AdminPage } from '../components/admin/AdminSidebar'
 import AdminLayout from '../components/admin/AdminLayout'
 import TopInviters from '../components/admin/TopInviters'
 import RegistrationGraph, { WeeklyActivityGraph } from '../components/admin/RegistrationGraph'
 import RegistrationTable from '../components/admin/RegistrationTable'
+import RegistrationDialog from '../components/admin/RegistrationDialog'
 import AdminSummaryCard from '../components/ui/AdminSummaryCard'
 
 const LOGIN_PATH = '/holywin/2026/admin/login'
@@ -36,6 +37,7 @@ function AdminPageContent({ page }: { page: AdminPage }) {
   const [error, setError] = useState('')
   const [pendingAttendanceIds, setPendingAttendanceIds] = useState<Set<string>>(new Set())
   const [attendanceErrors, setAttendanceErrors] = useState<Record<string, string>>({})
+  const [activeDialog, setActiveDialog] = useState<{ mode: 'edit' | 'delete'; registration: AdminRegistration } | null>(null)
   const [search, setSearch] = useState(() => new URLSearchParams(window.location.search).get('q') ?? '')
   const query = search.trim()
 
@@ -59,6 +61,16 @@ function AdminPageContent({ page }: { page: AdminPage }) {
     } finally {
       setPendingAttendanceIds(current => { const next = new Set(current); next.delete(row.id); return next })
     }
+  }
+
+  async function saveChanges(id: string, changes: RegistrationChanges) {
+    const updated = await updateRegistration(id, changes)
+    setRegistrations(current => current.map(row => row.id === id ? updated : row))
+  }
+
+  async function removeRegistration(id: string) {
+    await deleteRegistration(id)
+    setRegistrations(current => current.filter(row => row.id !== id))
   }
 
   useEffect(() => {
@@ -121,7 +133,7 @@ function AdminPageContent({ page }: { page: AdminPage }) {
           <RegistrationGraph registrations={registrations} />
           <section aria-labelledby="recent-registrations-title">
             <div className="mb-3 flex items-center justify-between gap-3"><h2 id="recent-registrations-title" className="text-sm font-bold text-zinc-950">Recent registrations</h2><a href={REGISTRATIONS_PATH} className="inline-flex min-h-9 items-center gap-1 text-xs font-semibold text-zinc-950 hover:underline">View all <ArrowRight size={13} aria-hidden="true" /></a></div>
-            {registrations.length ? <RegistrationTable registrations={registrations.slice(0, 5)} caption="Five most recent registrations" onAttendanceChange={changeAttendance} pendingAttendanceIds={pendingAttendanceIds} attendanceErrors={attendanceErrors} /> : <p className="rounded-2xl border border-[#e4e4e7] bg-white p-6 text-sm text-zinc-500">No registrations yet.</p>}
+            {registrations.length ? <RegistrationTable registrations={registrations.slice(0, 5)} caption="Five most recent registrations" onAttendanceChange={changeAttendance} pendingAttendanceIds={pendingAttendanceIds} attendanceErrors={attendanceErrors} onEdit={registration => setActiveDialog({ mode: 'edit', registration })} onDelete={registration => setActiveDialog({ mode: 'delete', registration })} /> : <p className="rounded-2xl border border-[#e4e4e7] bg-white p-6 text-sm text-zinc-500">No registrations yet.</p>}
           </section>
         </div>
         <div className="min-w-0 space-y-4"><WeeklyActivityGraph registrations={registrations} /><TopInviters registrations={registrations} /></div>
@@ -136,8 +148,9 @@ function AdminPageContent({ page }: { page: AdminPage }) {
           {search && <button type="button" onClick={() => updateSearch('')} aria-label="Clear search" className="absolute right-2 top-1/2 grid h-7 w-7 -translate-y-1/2 place-items-center rounded-md text-zinc-500 hover:bg-zinc-100 hover:text-zinc-950 focus-visible:outline-2 focus-visible:outline-zinc-950"><X size={14} aria-hidden="true" /></button>}
         </div>
       </div>
-      {filtered.length ? <RegistrationTable registrations={filtered} caption="All Holywin registrations" onAttendanceChange={changeAttendance} pendingAttendanceIds={pendingAttendanceIds} attendanceErrors={attendanceErrors} /> : <div className="rounded-2xl border border-[#e4e4e7] bg-white p-6 text-sm text-zinc-500">{query ? <>No matching registrations. <button type="button" onClick={() => updateSearch('')} className="font-semibold text-zinc-950 underline underline-offset-2 focus-visible:outline-2 focus-visible:outline-zinc-950">Clear search</button></> : 'No registrations yet.'}</div>}
+      {filtered.length ? <RegistrationTable registrations={filtered} caption="All Holywin registrations" onAttendanceChange={changeAttendance} pendingAttendanceIds={pendingAttendanceIds} attendanceErrors={attendanceErrors} onEdit={registration => setActiveDialog({ mode: 'edit', registration })} onDelete={registration => setActiveDialog({ mode: 'delete', registration })} /> : <div className="rounded-2xl border border-[#e4e4e7] bg-white p-6 text-sm text-zinc-500">{query ? <>No matching registrations. <button type="button" onClick={() => updateSearch('')} className="font-semibold text-zinc-950 underline underline-offset-2 focus-visible:outline-2 focus-visible:outline-zinc-950">Clear search</button></> : 'No registrations yet.'}</div>}
     </section>}
+    {activeDialog && <RegistrationDialog key={`${activeDialog.mode}-${activeDialog.registration.id}`} mode={activeDialog.mode} registration={activeDialog.registration} onClose={() => setActiveDialog(null)} onSave={saveChanges} onDelete={removeRegistration} />}
   </AdminLayout>
 }
 

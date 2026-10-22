@@ -94,6 +94,25 @@ function sameOrigin(request) {
   return origin === new URL(request.url).origin
 }
 
+function validId(id) {
+  return typeof id === 'string' && /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(id)
+}
+
+function registrationChanges(details) {
+  if (!details || !validId(details.id) || typeof details.full_name !== 'string' ||
+      typeof details.email !== 'string' || typeof details.invited_by !== 'string' && details.invited_by !== null ||
+      typeof details.best_in_costume !== 'boolean' || typeof details.costume_character !== 'string' && details.costume_character !== null) return null
+  const full_name = details.full_name.trim()
+  const email = details.email.trim().toLowerCase()
+  const invited_by = details.invited_by?.trim() || null
+  const costume_character = details.costume_character?.trim() || null
+  if (!full_name || full_name.length > 120 || email.length < 3 || email.length > 254 ||
+      !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email) || invited_by && invited_by.length > 120 ||
+      costume_character && costume_character.length > 120 || details.best_in_costume && !costume_character) return null
+  return { full_name, email, invited_by, best_in_costume: details.best_in_costume,
+    costume_character: details.best_in_costume ? costume_character : null }
+}
+
 export async function GET(request) {
   const url = new URL(request.url)
   const action = url.searchParams.get('action')
@@ -122,7 +141,8 @@ export async function GET(request) {
 }
 
 export async function PATCH(request) {
-  if (new URL(request.url).searchParams.get('action') !== 'attendance') return json({ error: 'Not found.' }, 404)
+  const action = new URL(request.url).searchParams.get('action')
+  if (action !== 'attendance' && action !== 'registration') return json({ error: 'Not found.' }, 404)
   if (!sameOrigin(request)) return json({ error: 'Invalid request origin.' }, 403)
 
   let details
@@ -131,28 +151,56 @@ export async function PATCH(request) {
   } catch {
     return json({ error: 'Invalid request.' }, 400)
   }
-  if (!details || typeof details.id !== 'string' || !/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(details.id) ||
-      typeof details.isAttended !== 'boolean') return json({ error: 'Invalid attendance details.' }, 400)
+  const changes = action === 'registration' ? registrationChanges(details) : null
+  if (action === 'attendance' ? !details || !validId(details.id) || typeof details.isAttended !== 'boolean' : !changes)
+    return json({ error: action === 'attendance' ? 'Invalid attendance details.' : 'Invalid registration details.' }, 400)
 
   try {
     const session = await authenticatedSession(request)
     if (!session) return json({ error: 'Your session has expired. Please sign in again.' }, 401, clearCookie())
-    const response = await supabase(`/rest/v1/registrations?id=eq.${encodeURIComponent(details.id)}&select=id,is_attended`, {
+    const response = await supabase(`/rest/v1/registrations?id=eq.${encodeURIComponent(details.id)}&select=${action === 'attendance' ? 'id,is_attended' : 'id,full_name,email,invited_by,best_in_costume,costume_character,created_at,is_attended'}`, {
       method: 'PATCH',
       headers: {
         Authorization: `Bearer ${session.access_token}`,
         'Content-Type': 'application/json',
         Prefer: 'return=representation',
       },
-      body: JSON.stringify({ is_attended: details.isAttended }),
+      body: JSON.stringify(action === 'attendance' ? { is_attended: details.isAttended } : changes),
     })
-    if (!response.ok) throw new Error('Could not update attendance.')
+    if (!response.ok) throw new Error('Could not update registration.')
     const updated = await response.json()
-    if (!Array.isArray(updated) || updated.length !== 1 || updated[0].id !== details.id ||
-        typeof updated[0].is_attended !== 'boolean') return json({ error: 'Registration was not found.' }, 404)
-    return json({ isAttended: updated[0].is_attended }, 200, sessionCookie(session))
+    if (!Array.isArray(updated) || updated.length !== 1 || updated[0].id !== details.id) return json({ error: 'Registration was not found.' }, 404)
+    if (action === 'attendance') {
+      if (typeof updated[0].is_attended !== 'boolean') throw new Error('Invalid attendance response.')
+      return json({ isAttended: updated[0].is_attended }, 200, sessionCookie(session))
+    }
+    return json({ registration: updated[0] }, 200, sessionCookie(session))
   } catch {
-    return json({ error: 'Could not update attendance. Please try again.' }, 502)
+    return json({ error: `Could not update ${action === 'attendance' ? 'attendance' : 'registration'}. Please try again.` }, 502)
+  }
+}
+
+export async function DELETE(request) {
+  if (new URL(request.url).searchParams.get('action') !== 'registration') return json({ error: 'Not found.' }, 404)
+  if (!sameOrigin(request)) return json({ error: 'Invalid request origin.' }, 403)
+  let details
+  try { details = await request.json() } catch { return json({ error: 'Invalid request.' }, 400) }
+  if (!details || !validId(details.id)) return json({ error: 'Invalid registration details.' }, 400)
+
+  try {
+    const session = await authenticatedSession(request)
+    if (!session) return json({ error: 'Your session has expired. Please sign in again.' }, 401, clearCookie())
+    const response = await supabase(`/rest/v1/registrations?id=eq.${encodeURIComponent(details.id)}&select=id`, {
+      method: 'DELETE',
+      headers: { Authorization: `Bearer ${session.access_token}`, Prefer: 'return=representation' },
+    })
+    if (!response.ok) throw new Error('Could not delete registration.')
+    const deleted = await response.json()
+    if (!Array.isArray(deleted) || deleted.length !== 1 || deleted[0].id !== details.id)
+      return json({ error: 'Registration was not found.' }, 404)
+    return json({ ok: true }, 200, sessionCookie(session))
+  } catch {
+    return json({ error: 'Could not delete registration. Please try again.' }, 502)
   }
 }
 
