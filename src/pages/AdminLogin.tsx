@@ -1,5 +1,5 @@
 import { useEffect, useState, type FormEvent } from 'react'
-import { ArrowLeft, ArrowRight, ShieldCheck } from 'lucide-react'
+import { ArrowLeft, ArrowRight, Eye, EyeOff, ShieldCheck } from 'lucide-react'
 import AdminCard from '../components/ui/AdminCard'
 import { isAdmin, signInAdmin } from '../lib/adminAuth'
 
@@ -12,6 +12,7 @@ function navigate(path: string) {
 export default function AdminLogin() {
   const [username, setUsername] = useState('')
   const [password, setPassword] = useState('')
+  const [showPassword, setShowPassword] = useState(false)
   const [error, setError] = useState('')
   const [busy, setBusy] = useState(false)
 
@@ -53,7 +54,12 @@ export default function AdminLogin() {
           </div>
           <div>
             <label htmlFor="admin-password" className="mb-2 block text-xs font-semibold text-zinc-700">Password</label>
-            <input id="admin-password" name="password" type="password" autoComplete="current-password" value={password} onChange={event => setPassword(event.target.value)} required className="h-11 w-full rounded-lg border border-zinc-300 bg-white px-3.5 text-sm text-zinc-950 outline-none transition-colors focus-visible:border-zinc-700 focus-visible:ring-2 focus-visible:ring-zinc-200" />
+            <div className="relative">
+              <input id="admin-password" name="password" type={showPassword ? 'text' : 'password'} autoComplete="current-password" value={password} onChange={event => setPassword(event.target.value)} required className="h-11 w-full rounded-lg border border-zinc-300 bg-white py-2 pl-3.5 pr-12 text-sm text-zinc-950 outline-none transition-colors focus-visible:border-zinc-700 focus-visible:ring-2 focus-visible:ring-zinc-200" />
+              <button type="button" aria-label={showPassword ? 'Hide password' : 'Show password'} aria-pressed={showPassword} onClick={() => setShowPassword(value => !value)} className="absolute inset-y-0 right-1 flex w-10 items-center justify-center rounded-md text-zinc-500 transition-colors hover:text-zinc-900 focus-visible:outline-2 focus-visible:outline-offset-[-2px] focus-visible:outline-zinc-700">
+                {showPassword ? <EyeOff size={18} aria-hidden="true" /> : <Eye size={18} aria-hidden="true" />}
+              </button>
+            </div>
           </div>
           {error && <p role="alert" className="rounded-lg border border-zinc-300 bg-zinc-100 px-3.5 py-3 text-sm text-zinc-900">{error}</p>}
           <button type="submit" disabled={busy} className="flex min-h-11 w-full items-center justify-center gap-2 rounded-lg bg-zinc-950 px-4 text-sm font-semibold text-white transition-colors hover:bg-zinc-800 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-zinc-950 disabled:cursor-wait disabled:opacity-60">
