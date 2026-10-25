@@ -42,8 +42,8 @@ export default function RegistrationTable({ registrations, caption, onAttendance
             {attendanceErrors[row.id] && <p role="alert" className="mt-1 max-w-44 text-xs text-zinc-700">{attendanceErrors[row.id]}</p>}
           </td>
           <td className="px-5 py-3.5"><div className="flex items-center gap-1.5">
-            <button type="button" onClick={() => onEdit(row)} aria-label={`Edit registration for ${row.full_name}`} className="inline-flex min-h-9 items-center gap-1.5 rounded-lg border border-zinc-300 px-2.5 text-xs font-semibold text-zinc-800 hover:bg-zinc-100 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-zinc-950"><Pencil size={13} aria-hidden="true" />Edit</button>
-            <button type="button" onClick={() => onDelete(row)} aria-label={`Delete registration for ${row.full_name}`} className="inline-flex min-h-9 items-center gap-1.5 rounded-lg border border-zinc-300 px-2.5 text-xs font-semibold text-zinc-800 hover:bg-zinc-100 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-zinc-950"><Trash2 size={13} aria-hidden="true" />Delete</button>
+            <button type="button" onClick={() => onEdit(row)} aria-label={`Edit registration for ${row.full_name}`} title={`Edit registration for ${row.full_name}`} className="inline-flex size-10 items-center justify-center rounded-lg border border-zinc-300 text-zinc-800 hover:bg-zinc-100 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-zinc-950"><Pencil size={16} aria-hidden="true" /></button>
+            <button type="button" onClick={() => onDelete(row)} aria-label={`Delete registration for ${row.full_name}`} title={`Delete registration for ${row.full_name}`} className="inline-flex size-10 items-center justify-center rounded-lg border border-zinc-300 text-zinc-800 hover:bg-zinc-100 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-zinc-950"><Trash2 size={16} aria-hidden="true" /></button>
           </div></td>
         </tr>)}
       </tbody>
