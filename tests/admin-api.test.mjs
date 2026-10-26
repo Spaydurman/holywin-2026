@@ -44,6 +44,9 @@ function authFetch({ admin = true, calls }) {
     }
     if (String(url).endsWith('/auth/v1/user')) return Response.json({ id: 'admin-id' })
     if (String(url).includes('/admin_users?')) return Response.json(admin ? [{ user_id: 'admin-id' }] : [])
+    if (String(url).includes('/registrations?') && options.method === 'POST') {
+      return Response.json([{ id: registrationId, ...JSON.parse(options.body), created_at: '2026-10-26T00:00:00Z', is_attended: false }])
+    }
     if (String(url).includes('/registrations?') && options.method === 'PATCH') {
       if (JSON.parse(options.body).full_name) return Response.json([{ id: registrationId, ...JSON.parse(options.body), created_at: '2026-10-22T00:00:00Z', is_attended: false }])
       return Response.json([{ id: registrationId, is_attended: true }])
@@ -146,6 +149,32 @@ test('editing and deleting registrations require admin access and same-origin re
   const deleted = await DELETE(request('registration', { method: 'DELETE', cookie, body: deletion }))
   assert.deepEqual(await deleted.json(), { ok: true })
   assert.ok(calls.some(call => call.url.includes('/registrations?') && call.options.method === 'DELETE' && call.options.headers.Authorization === 'Bearer access-secret'))
+})
+
+test('adding a registration requires admin access and returns the created row', async () => {
+  const calls = []
+  authFetch({ calls })
+  const login = await POST(request('login', { method: 'POST', body: { username: 'Holywin', password: 'test-password' } }))
+  const cookie = login.headers.get('set-cookie').split(';')[0]
+  const body = { full_name: 'New Guest', email: 'NEW@example.com', invited_by: null, best_in_costume: true, costume_character: 'Hero' }
+
+  assert.equal((await POST(request('registration', { method: 'POST', body }))).status, 401)
+  assert.equal((await POST(request('registration', { method: 'POST', cookie, body, origin: 'https://attacker.example' }))).status, 403)
+  assert.equal((await POST(request('registration', { method: 'POST', cookie, body: { ...body, costume_character: null } }))).status, 400)
+  assert.equal(calls.filter(call => call.url.includes('/registrations?') && call.options.method === 'POST').length, 0)
+
+  const created = await POST(request('registration', { method: 'POST', cookie, body }))
+  assert.equal(created.status, 201)
+  assert.deepEqual((await created.json()).registration, { id: registrationId, ...body, email: 'new@example.com', created_at: '2026-10-26T00:00:00Z', is_attended: false })
+  const insertCall = calls.find(call => call.url.includes('/registrations?') && call.options.method === 'POST')
+  assert.equal(insertCall.options.headers.Authorization, 'Bearer access-secret')
+  assert.equal(insertCall.options.headers.Prefer, 'return=representation')
+  assert.equal(JSON.parse(insertCall.options.body).email, 'new@example.com')
+
+  const nonAdminCalls = []
+  authFetch({ admin: false, calls: nonAdminCalls })
+  assert.equal((await POST(request('registration', { method: 'POST', cookie, body }))).status, 401)
+  assert.equal(nonAdminCalls.filter(call => call.url.includes('/registrations?') && call.options.method === 'POST').length, 0)
 })
 
 test('Vite serves the admin API during local development', async () => {

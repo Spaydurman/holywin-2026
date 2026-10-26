@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
-import { ArrowRight, CalendarDays, Clock3, Download, Search, UserRoundCheck, UsersRound, X } from 'lucide-react'
-import { deleteRegistration, getRegistrations, isAdmin, setRegistrationAttendance, updateRegistration, type AdminRegistration, type RegistrationChanges } from '../lib/adminAuth'
+import { ArrowRight, CalendarDays, Clock3, Download, Plus, Search, UserRoundCheck, UsersRound, X } from 'lucide-react'
+import { addRegistration, deleteRegistration, getRegistrations, isAdmin, setRegistrationAttendance, updateRegistration, type AdminRegistration, type RegistrationChanges } from '../lib/adminAuth'
 import { addDays, dateKey, eventTimeZone } from '../lib/adminDates'
 import { REGISTRATIONS_PATH, type AdminPage } from '../components/admin/AdminSidebar'
 import AdminLayout from '../components/admin/AdminLayout'
@@ -37,7 +37,7 @@ function AdminPageContent({ page }: { page: AdminPage }) {
   const [error, setError] = useState('')
   const [pendingAttendanceIds, setPendingAttendanceIds] = useState<Set<string>>(new Set())
   const [attendanceErrors, setAttendanceErrors] = useState<Record<string, string>>({})
-  const [activeDialog, setActiveDialog] = useState<{ mode: 'edit' | 'delete'; registration: AdminRegistration } | null>(null)
+  const [activeDialog, setActiveDialog] = useState<{ mode: 'add' } | { mode: 'edit' | 'delete'; registration: AdminRegistration } | null>(null)
   const [search, setSearch] = useState(() => new URLSearchParams(window.location.search).get('q') ?? '')
   const query = search.trim()
 
@@ -66,6 +66,12 @@ function AdminPageContent({ page }: { page: AdminPage }) {
   async function saveChanges(id: string, changes: RegistrationChanges) {
     const updated = await updateRegistration(id, changes)
     setRegistrations(current => current.map(row => row.id === id ? updated : row))
+  }
+
+  async function createRegistration(changes: RegistrationChanges) {
+    const created = await addRegistration(changes)
+    setRegistrations(current => [created, ...current])
+    updateSearch('')
   }
 
   async function removeRegistration(id: string) {
@@ -139,18 +145,21 @@ function AdminPageContent({ page }: { page: AdminPage }) {
         <div className="min-w-0 space-y-4"><WeeklyActivityGraph registrations={registrations} /><TopInviters registrations={registrations} /></div>
       </div>
     </> : <section aria-label="All registrations">
-      <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+      <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center sm:justify-between">
         <p role="status" className="text-xs text-zinc-500">{query ? `${filtered.length} of ${registrations.length} registration${registrations.length === 1 ? '' : 's'}` : `${registrations.length} total registration${registrations.length === 1 ? '' : 's'}`}</p>
-        <div role="search" className="relative w-full sm:max-w-72">
-          <label htmlFor="registration-search" className="sr-only">Search registrations table</label>
-          <Search size={15} aria-hidden="true" className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-zinc-500" />
-          <input id="registration-search" type="text" inputMode="search" autoComplete="off" value={search} onChange={event => updateSearch(event.target.value)} placeholder="Search registrations..." className="h-9 w-full rounded-lg border border-zinc-200 bg-white py-2 pl-9 pr-9 text-xs text-zinc-900 shadow-sm outline-none placeholder:text-zinc-500 focus:border-zinc-500 focus:ring-2 focus:ring-zinc-200" />
-          {search && <button type="button" onClick={() => updateSearch('')} aria-label="Clear search" className="absolute right-2 top-1/2 grid h-7 w-7 -translate-y-1/2 place-items-center rounded-md text-zinc-500 hover:bg-zinc-100 hover:text-zinc-950 focus-visible:outline-2 focus-visible:outline-zinc-950"><X size={14} aria-hidden="true" /></button>}
+        <div className="flex w-full items-center justify-end gap-2 sm:w-auto">
+          <button type="button" onClick={() => setActiveDialog({ mode: 'add' })} className="inline-flex min-h-11 shrink-0 cursor-pointer items-center justify-center gap-2 rounded-lg bg-zinc-950 px-4 text-sm font-semibold text-white hover:bg-zinc-800 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-zinc-950"><Plus size={17} aria-hidden="true" />Add</button>
+          <div role="search" className="relative w-full min-w-0 max-w-72 sm:w-72">
+            <label htmlFor="registration-search" className="sr-only">Search registrations table</label>
+            <Search size={15} aria-hidden="true" className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-zinc-500" />
+            <input id="registration-search" type="text" inputMode="search" autoComplete="off" value={search} onChange={event => updateSearch(event.target.value)} placeholder="Search registrations..." className="h-11 w-full rounded-lg border border-zinc-200 bg-white py-2 pl-9 pr-9 text-sm text-zinc-900 shadow-sm outline-none placeholder:text-zinc-500 focus:border-zinc-500 focus:ring-2 focus:ring-zinc-200" />
+            {search && <button type="button" onClick={() => updateSearch('')} aria-label="Clear search" className="absolute right-2 top-1/2 grid h-7 w-7 -translate-y-1/2 place-items-center rounded-md text-zinc-500 hover:bg-zinc-100 hover:text-zinc-950 focus-visible:outline-2 focus-visible:outline-zinc-950"><X size={14} aria-hidden="true" /></button>}
+          </div>
         </div>
       </div>
       {filtered.length ? <RegistrationTable registrations={filtered} caption="All Holywin registrations" onAttendanceChange={changeAttendance} pendingAttendanceIds={pendingAttendanceIds} attendanceErrors={attendanceErrors} onEdit={registration => setActiveDialog({ mode: 'edit', registration })} onDelete={registration => setActiveDialog({ mode: 'delete', registration })} /> : <div className="rounded-2xl border border-[#e4e4e7] bg-white p-6 text-sm text-zinc-500">{query ? <>No matching registrations. <button type="button" onClick={() => updateSearch('')} className="font-semibold text-zinc-950 underline underline-offset-2 focus-visible:outline-2 focus-visible:outline-zinc-950">Clear search</button></> : 'No registrations yet.'}</div>}
     </section>}
-    {activeDialog && <RegistrationDialog key={`${activeDialog.mode}-${activeDialog.registration.id}`} mode={activeDialog.mode} registration={activeDialog.registration} onClose={() => setActiveDialog(null)} onSave={saveChanges} onDelete={removeRegistration} />}
+    {activeDialog && <RegistrationDialog key={`${activeDialog.mode}-${'registration' in activeDialog ? activeDialog.registration.id : 'new'}`} mode={activeDialog.mode} registration={'registration' in activeDialog ? activeDialog.registration : undefined} onClose={() => setActiveDialog(null)} onAdd={createRegistration} onSave={saveChanges} onDelete={removeRegistration} />}
   </AdminLayout>
 }
 

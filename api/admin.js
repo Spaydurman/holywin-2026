@@ -98,8 +98,8 @@ function validId(id) {
   return typeof id === 'string' && /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(id)
 }
 
-function registrationChanges(details) {
-  if (!details || !validId(details.id) || typeof details.full_name !== 'string' ||
+function registrationChanges(details, requireId = false) {
+  if (!details || (requireId && !validId(details.id)) || typeof details.full_name !== 'string' ||
       typeof details.email !== 'string' || typeof details.invited_by !== 'string' && details.invited_by !== null ||
       typeof details.best_in_costume !== 'boolean' || typeof details.costume_character !== 'string' && details.costume_character !== null) return null
   const full_name = details.full_name.trim()
@@ -151,7 +151,7 @@ export async function PATCH(request) {
   } catch {
     return json({ error: 'Invalid request.' }, 400)
   }
-  const changes = action === 'registration' ? registrationChanges(details) : null
+  const changes = action === 'registration' ? registrationChanges(details, true) : null
   if (action === 'attendance' ? !details || !validId(details.id) || typeof details.isAttended !== 'boolean' : !changes)
     return json({ error: action === 'attendance' ? 'Invalid attendance details.' : 'Invalid registration details.' }, 400)
 
@@ -206,8 +206,35 @@ export async function DELETE(request) {
 
 export async function POST(request) {
   const action = new URL(request.url).searchParams.get('action')
-  if (action !== 'login' && action !== 'logout') return json({ error: 'Not found.' }, 404)
+  if (action !== 'login' && action !== 'logout' && action !== 'registration') return json({ error: 'Not found.' }, 404)
   if (!sameOrigin(request)) return json({ error: 'Invalid request origin.' }, 403)
+
+  if (action === 'registration') {
+    let details
+    try { details = await request.json() } catch { return json({ error: 'Invalid request.' }, 400) }
+    const changes = registrationChanges(details)
+    if (!changes) return json({ error: 'Invalid registration details.' }, 400)
+
+    try {
+      const session = await authenticatedSession(request)
+      if (!session) return json({ error: 'Your session has expired. Please sign in again.' }, 401, clearCookie())
+      const response = await supabase('/rest/v1/registrations?select=id,full_name,email,invited_by,best_in_costume,costume_character,created_at,is_attended', {
+        method: 'POST',
+        headers: {
+          Authorization: `Bearer ${session.access_token}`,
+          'Content-Type': 'application/json',
+          Prefer: 'return=representation',
+        },
+        body: JSON.stringify(changes),
+      })
+      if (!response.ok) throw new Error('Could not create registration.')
+      const created = await response.json()
+      if (!Array.isArray(created) || created.length !== 1 || !validId(created[0].id)) throw new Error('Invalid registration response.')
+      return json({ registration: created[0] }, 201, sessionCookie(session))
+    } catch {
+      return json({ error: 'Could not add registration. Please try again.' }, 502)
+    }
+  }
 
   if (action === 'logout') {
     const session = storedSession(request)
