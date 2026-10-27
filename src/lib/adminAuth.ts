@@ -62,6 +62,15 @@ export async function updateRegistration(id: string, changes: RegistrationChange
   return result.registration
 }
 
+export async function addRegistration(changes: RegistrationChanges): Promise<AdminRegistration> {
+  const result = await request<{ registration: AdminRegistration }>('registration', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(changes),
+  })
+  return result.registration
+}
+
 export async function deleteRegistration(id: string): Promise<void> {
   await request('registration', {
     method: 'DELETE',
