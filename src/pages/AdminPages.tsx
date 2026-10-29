@@ -39,10 +39,12 @@ function AdminPageContent({ page }: { page: AdminPage }) {
   const [attendanceErrors, setAttendanceErrors] = useState<Record<string, string>>({})
   const [activeDialog, setActiveDialog] = useState<{ mode: 'add' } | { mode: 'edit' | 'delete'; registration: AdminRegistration } | null>(null)
   const [search, setSearch] = useState(() => new URLSearchParams(window.location.search).get('q') ?? '')
+  const [tablePage, setTablePage] = useState(1)
   const query = search.trim()
 
   function updateSearch(value: string) {
     setSearch(value)
+    setTablePage(1)
     const url = new URL(window.location.href)
     if (value.trim()) url.searchParams.set('q', value.trim())
     else url.searchParams.delete('q')
@@ -157,7 +159,7 @@ function AdminPageContent({ page }: { page: AdminPage }) {
           </div>
         </div>
       </div>
-      {filtered.length ? <RegistrationTable registrations={filtered} caption="All Holywin registrations" onAttendanceChange={changeAttendance} pendingAttendanceIds={pendingAttendanceIds} attendanceErrors={attendanceErrors} onEdit={registration => setActiveDialog({ mode: 'edit', registration })} onDelete={registration => setActiveDialog({ mode: 'delete', registration })} /> : <div className="rounded-2xl border border-[#e4e4e7] bg-white p-6 text-sm text-zinc-500">{query ? <>No matching registrations. <button type="button" onClick={() => updateSearch('')} className="font-semibold text-zinc-950 underline underline-offset-2 focus-visible:outline-2 focus-visible:outline-zinc-950">Clear search</button></> : 'No registrations yet.'}</div>}
+      {filtered.length ? <RegistrationTable registrations={filtered} caption="All Holywin registrations" page={tablePage} onPageChange={setTablePage} onAttendanceChange={changeAttendance} pendingAttendanceIds={pendingAttendanceIds} attendanceErrors={attendanceErrors} onEdit={registration => setActiveDialog({ mode: 'edit', registration })} onDelete={registration => setActiveDialog({ mode: 'delete', registration })} /> : <div className="rounded-2xl border border-[#e4e4e7] bg-white p-6 text-sm text-zinc-500">{query ? <>No matching registrations. <button type="button" onClick={() => updateSearch('')} className="font-semibold text-zinc-950 underline underline-offset-2 focus-visible:outline-2 focus-visible:outline-zinc-950">Clear search</button></> : 'No registrations yet.'}</div>}
     </section>}
     {activeDialog && <RegistrationDialog key={`${activeDialog.mode}-${'registration' in activeDialog ? activeDialog.registration.id : 'new'}`} mode={activeDialog.mode} registration={'registration' in activeDialog ? activeDialog.registration : undefined} onClose={() => setActiveDialog(null)} onAdd={createRegistration} onSave={saveChanges} onDelete={removeRegistration} />}
   </AdminLayout>
